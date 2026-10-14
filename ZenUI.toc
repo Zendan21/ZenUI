@@ -1,0 +1,50 @@
+## Interface: 30300
+## Title: |cfff2d6b3Zen|r|cffffffffUI|r
+## Notes: A subtle, sleek standalone UI framework for World of Warcraft 3.3.5a.
+## Author: Zendan
+## Version: 1.0.25
+## SavedVariables: ZenUIDB, RavioliUIDB
+## OptionalDeps: EbonAPI
+## X-ZenUI-Version: 1.0.25
+
+Core\Init.lua
+UI\Init.lua
+UI\Themes.lua
+UI\Media.lua
+UI\GlobalSync.lua
+UI\Effects.lua
+UI\Widgets\Buttons.lua
+UI\Widgets\Controls.lua
+UI\Widgets\Panels.lua
+UI\Widgets\StatusBar.lua
+UI\AppearancePanel.lua
+Core\EbonAPI.lua
+Core\Database.lua
+Core\Styling.lua
+Core\Profiles.lua
+Core\Events.lua
+Core\Media.lua
+Core\API.lua
+Core\Modules.lua
+Core\Movers.lua
+Core\Commands.lua
+Modules\UnitFrames.lua
+Modules\ActionBars.lua
+Modules\MicroMenu.lua
+Modules\CallboardTracker.lua
+Bindings.xml
+Modules\Minimap.lua
+Modules\Tooltip.lua
+Modules\Chat.lua
+Modules\Bags.lua
+Modules\LootRolls.lua
+Modules\BlizzardFrames.lua
+Modules\BlizzardPhaseB.lua
+Modules\BlizzardPhaseC.lua
+Modules\BlizzardPhaseCPvP.lua
+Modules\BlizzardPhaseCStatusBars.lua
+Modules\BlizzardPhaseCAchievements.lua
+Modules\BlizzardPhaseDInteractions.lua
+Modules\BlizzardEscapeSkins.lua
+Modules\TestFrame.lua
+Modules\Config.lua

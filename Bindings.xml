@@ -1,0 +1,9 @@
+<Bindings>
+    <Binding name="ZEN_PROGRESSION_MAIN" header="ZENUI">ZenUI_ToggleProgression();</Binding>
+    <Binding name="ZEN_PROGRESSION_ECHOES" header="ZENUI">ZenUI_OpenProgressionPage("Echoes");</Binding>
+    <Binding name="ZEN_PROGRESSION_SKILLTREE" header="ZENUI">ZenUI_OpenProgressionPage("Skill Tree");</Binding>
+    <Binding name="ZEN_PROGRESSION_TRANSMOGRIFY" header="ZENUI">ZenUI_OpenProgressionPage("Transmogrify");</Binding>
+    <Binding name="ZEN_PROGRESSION_MOUNTS" header="ZENUI">ZenUI_OpenProgressionPage("Mounts");</Binding>
+    <Binding name="ZEN_PROGRESSION_COMPANIONS" header="ZENUI">ZenUI_OpenProgressionPage("Companions");</Binding>
+    <Binding name="ZEN_PROGRESSION_PRESTIGE" header="ZENUI">ZenUI_OpenProgressionPage("Prestige");</Binding>
+</Bindings>

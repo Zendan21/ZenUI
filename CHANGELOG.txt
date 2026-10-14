@@ -1,0 +1,1743 @@
+ZenUI 1.0.25 - ZenStylingPack integration
+- Replaces ZenUI's standalone 1.0.24 appearance-presets layer with the embedded ZenStylingPack 1.1.0 design system supplied for integration.
+- Adds six ZenStylingPack visual styles: Zen Classic, Obsidian, Glass, Flat, Brutal and Neon, including their border width, shadow, gloss/glow and surface treatments.
+- Appearance can operate in Global mode through the standalone EbonAPI shared store or Local mode for ZenUI only. EbonAPI remains optional and is not bundled.
+- Global ZenStylingPack changes made by another compatible Zen addon are reflected live in ZenUI through the shared EbonAPI appearance event.
+- Keeps ZenUI's existing mover/layout/component-scale systems independent from the shared style.
+- Expands type styles to Arial Narrow, Blizzard Default, Morpheus and Skurri, and adopts the ZenStylingPack accent palette including Neon Pink.
+- ZenUI's existing backdrop/button/text API now delegates to ZenStylingPack so current Character, Mail, Guild, Bags, Bank, Q menu and other Zen frames inherit the selected style without theme-specific panel copies.
+- Existing 1.0.24 Classic/Obsidian/Glass choices migrate into the equivalent ZenStylingPack style; old Dark Mode profiles continue to map to Obsidian.
+- Database schema is now 47 for styling mode/style migration.
+
+ZenUI 1.0.24 - simple appearance presets
+- Adds a compact visual-style selector under General -> Appearance: Zen Classic, Zen Obsidian and Zen Glass.
+- Adds six one-click accent presets (Orange, Blue, Green, Purple, Gold and Graphite) while retaining the existing custom colour picker and RGB fine tuning.
+- Adds a live Zen panel preview so style/accent changes can be judged without leaving Settings.
+- Styles alter the shared Zen surface treatment only; layout, movers, functionality, font, panel opacity and accent remain profile-owned settings.
+- Existing profiles keep their current look by default. The old Dark Mode setting migrates to Zen Obsidian automatically.
+- /zenui theme now reports the active visual style.
+- Fixes the General page version display to read the actual runtime ZenUI version instead of an old hard-coded development value.
+- Database schema is now 46 for the per-profile visualStyle setting.
+
+ZenUI 1.0.23 - optional EbonAPI backend
+- Adds EbonAPI as an optional dependency only; ZenUI does not bundle, copy or require the community addon and remains fully standalone when EbonAPI is absent.
+- Adds a small Zen-owned interoperability bridge for EbonAPI 2.1+ with guarded version negotiation and Project Ebonhold PerkService access.
+- Q-menu Echo Saved Builds now prefer EbonAPI's normalized SERVER_BUILDS / SERVER_BUILD_ACTIVE state when available, eliminating Zen's need to infer Saved Builds from Ebonhold Wishlist-adjacent UI/service records.
+- Saved Build updates become event-driven through EbonAPI sticky events; the Q menu refreshes its list and active marker when the server state changes instead of polling the Echoes interface.
+- Build activation still uses Ebonhold's authoritative ActivateServerBuildSlot backend; EbonAPI supplies normalized state rather than replacing Ebonhold gameplay actions.
+- If EbonAPI is missing, disabled, too old or has not connected, ZenUI automatically keeps the existing direct PerkService / legacy UI compatibility path.
+- /zenui status and hidden diagnostics report whether the EbonAPI backend is connected.
+- Echo build cache format is bumped internally to version 6 so previously inferred rows are not reused as authoritative EbonAPI state.
+- Database schema remains 45.
+
+ZenUI 1.0.22 - combat panel exclusivity fix
+- Keeps the unified 1.0.21 combat menu router, but restores one-major-panel-at-a-time behavior during combat for ordinary Zen panels.
+- Fixes Friends / Guild / Raid and other non-protected Zen menus accumulating on top of one another when switching views during combat.
+- Combat exclusivity now checks whether an already-open frame is actually protected instead of disabling exclusivity for every panel.
+- Spellbook is explicitly marked combat-protected because its secure spell buttons cannot be hidden from an insecure callback during lockdown.
+- Social, Guild and Raid also enforce mutual exclusion directly, so their in-panel tabs cannot stack even while combat lockdown is active.
+- Database schema remains 45.
+
+ZenUI 1.0.21 - unified combat menu routing
+- Replaces the mixed per-module combat key workarounds with one central binding router so Zen menus use the same normal toggle/page functions in and out of combat.
+- C / Character now toggles closed with C in combat and C/U/K/Currency preserve their normal page-switch semantics instead of bypassing Character state.
+- I / Dungeon Finder, O / Social, Guild, Raid, L / Quest Log, N / Talents, Glyphs, Y / Achievements/Statistics and H / PvP now use the same combat-safe dispatch path.
+- Quest Log no longer depends on the protected stock QuestLogFrame toggle while in combat; Zen toggles directly and reconciles the hidden native lifecycle when combat ends.
+- Spellbook keeps a dedicated secure frame toggle because its secure spell buttons make the frame protected in combat; its pre-armed Zen presentation remains available without falling back to Blizzard.
+- The central router uses a secure click action only for the hardware binding handoff, then delegates ordinary Zen panels back to their existing module toggle functions. This avoids the state mismatch caused by directly Show/Hide-ing frames from restricted snippets.
+- Protected gameplay changes inside panels (equipment changes, talent changes, queue changes, secure layout changes, etc.) remain subject to normal Wrath/Ebonhold combat lockdown; the menus themselves remain accessible.
+- Database schema remains 45.
+
+ZenUI 1.0.20 - Escape / Game Menu recovery
+- Removes the old invisible Character Progression Escape surrogate from UISpecialFrames; a stale shown surrogate could consume ESC indefinitely and prevent the normal Game Menu from opening.
+- Character Progression now registers its real top-level frame with UISpecialFrames only when Ebonhold exposes a stable frame name.
+- Unnamed Ebonhold progression roots no longer get an invisible special-frame proxy; preserving the global ESC -> Game Menu path takes priority.
+- Cleans up any legacy ZenUIProgressionEscapeFrame registration during MicroMenu initialization.
+
+ZenUI 1.0.19 - minimap raid identifier
+- Adds a compact raid size/difficulty line directly beneath the minimap zone name while inside a raid instance: 10, 10h, 25, 25h (and other reported raid sizes where applicable).
+- Uses live GetInstanceInfo() data with Wrath difficulty-ID fallbacks, so the label follows the actual current instance rather than the selected raid preference.
+- The identifier updates on zone, instance-info and difficulty changes, disappears automatically outside raids, and can be toggled under ZenUI -> Interface -> Minimap.
+- Native tracking placement shifts down only while the second raid line is visible so the label remains readable.
+- No database schema change.
+
+ZenUI 1.0.18 - combat key dispatch hardening
+- Character C/U/Skills/Currency combat bindings now terminate at SecureHandlerClickTemplate proxies.
+- Character page refresh remains Zen-owned in PostClick; protected gameplay actions are still left to Blizzard/Ebonhold.
+- Dungeon Finder combat binding now uses the same secure show/hide proxy instead of an ordinary addon button.
+- No database schema change.
+
+ZenUI 1.0.17 - combat Character / Dungeon Finder access
+- Fixes C / Character still failing to open reliably after combat lockdown begins. The visible Character shell no longer uses secure frame-ref attributes for menu routing; out-of-combat override bindings now click ordinary Zen proxy buttons whose combat action is limited to showing/hiding the non-protected Zen panel.
+- Removes the leftover ZenCharacterMode secure-attribute state machine introduced by 1.0.10. Character page state is again ordinary Zen Lua state, while the separate secure equipped-item enhancement targets from 1.0.15 remain outside the Character hierarchy.
+- Fixes I / Dungeon Finder failing or touching Blizzard UI in combat. Its binding now opens the ordinary Zen Dungeon Finder directly, while protected/native LFD backend mutations are paused during lockdown.
+- Dungeon Finder is view-only during combat: current roles, queue state, dungeon/reward information and the Zen window remain readable, while role/selection/queue changes resume after combat.
+- Primes Ebonhold's load-on-demand LFD backend on world entry while out of combat so a first-ever I-key open during combat still has cached data to display.
+- Database schema remains 45.
+
+ZenUI 1.0.16 - Zen Equipment Manager
+- Restores the missing Equipment Manager to Zen's Character -> Equipment page with a compact Zen-owned side drawer.
+- Lists the character's real Blizzard/Ebonhold saved equipment sets and keeps Blizzard's native Equipment Manager APIs authoritative underneath.
+- Supports selecting and equipping sets, saving current equipment into an existing or new set, renaming sets, and two-step confirmed deletion.
+- Saved sets can be dragged from the Zen manager onto action bars through PickupEquipmentSet, matching Wrath's native Equipment Manager behavior.
+- Detects and labels a set when its saved items are currently equipped; locked-item state is also surfaced when available.
+- The manager remains viewable in combat, while equipment-changing/save/rename/delete actions are deliberately blocked until combat ends.
+- ZenUI database schema remains 45.
+
+ZenUI 1.0.15 - raid/combat Character tab navigation fix
+- Fixes the Character panel opening in raid combat but refusing to switch between Equipment, Reputation, Skills, Currency and Titles.
+- Root cause: the secure equipped-item enhancement target buttons were children of the Character panel, which made the whole ancestor frame hierarchy combat-protected. The 1.0.10 secure tab workaround could open the panel but still left normal tab presentation dependent on a protected frame tree.
+- Equipped-item enhancement target buttons now live outside the Character hierarchy in absolute UIParent space and are positioned only while out of combat when an item-target spell is active. A secure visibility driver hides those helpers during combat.
+- The visible Character shell and top tabs are ordinary Zen controls again, so they can switch freely while grouped, raiding or in combat. Protected equipment/enhancement actions remain subject to normal Wrath combat restrictions.
+- Database schema remains 45.
+
+ZenUI 1.0.14 - Saved Builds only
+- Fixes the Q-menu build list still showing Ebonhold Wishlist entries returned alongside build records by the direct PerkService table.
+- The direct list now follows Ebonhold's own saved-snapshot semantics: only verified server build slots 1-10 are accepted, matching entries that can actually be activated through ActivateServerBuildSlot().
+- Cache format is bumped internally to version 5 and cached rows are also required to be verified numbered slots, so previously cached Wishlist names are discarded automatically.
+- Database schema remains 45.
+
+ZenUI 1.0.13 - Q-menu Saved Builds filtering
+- Q-menu Echo Builds now treats ProjectEbonhold.PerkService.GetServerBuildSlots() as authoritative whenever that service exists; Wishlist rows from the Echoes UI are never merged into the direct server-slot list.
+- When ProjectEbonhold.PerkService exists but its build-slot payload is temporarily unavailable during refresh, ZenUI now stays on the last direct-service cache instead of falling back to Echoes UI scanning. This prevents transient Wishlist rows from leaking into Q.
+- Native Saved Builds UI scanning remains available only as a compatibility fallback when the direct PerkService build API is genuinely unavailable.
+- Echo build cache format is bumped internally to version 4 so any names cached by the old UI fallback are discarded; ZenUI database schema remains 45.
+
+ZenUI 1.0.12 - Zen Mail quality-of-life upgrade
+- Adapts the supplied EbonPostal reference into ZenUI's existing Zen-owned Mail window rather than exposing a second addon/native mail UI.
+- Adds paced, event-confirmed Open All collection. Attachments and money are taken one operation at a time; C.O.D. and GM/system mail are always skipped.
+- Adds Select mode with Open Selected / Return Selected, Shift range selection and Ctrl same-sender selection. Shift-click and Ctrl-click inbox rows provide quick collect / quick return shortcuts outside Select mode.
+- Adds a configurable regular-bag free-slot reserve so batch item collection stops before consuming the last requested slots while money collection can continue.
+- Reworks Collect Gold onto the same descending event-confirmed queue so inbox row removal cannot cause messages to be skipped.
+- Adds a fully Zen-styled recipient picker with account-wide Contacts, Recently Mailed, same-realm Alts, Friends and Guild categories. Successful send recipients are remembered automatically; saved contacts can be added/removed from the picker.
+- Makes inbox action labels authoritative: selected mail now shows Delete, Return to Sender or No Action rather than a generic combined button.
+- Adds an optional mailbox-session gold total when closing Mail.
+- Adds ZenUI -> Zen Panels -> Mail settings for batch bag-space reserve and session-total reporting.
+- Database schema 45 adds Mail preferences plus an account-wide address book/history kept outside profile export strings.
+
+ZenUI 1.0.11 - direct Ebonhold Echo Saved Builds service
+- Reworks the Q-menu Echo Builds section around ProjectEbonhold.PerkService, based on the supplied EchoBuildRestore 1.0.0 reference.
+- Saved builds are now read directly from GetServerBuildSlots() and the active build from GetServerActiveSlot(); opening the Echoes page is no longer required to populate the Q menu.
+- Clicking a build uses ActivateServerBuildSlot(slot) directly and performs a short bounded confirmation against the server-active slot before reporting success.
+- Refresh Echo Builds uses RequestServerBuildSlots() and a short bounded refresh; it never initializes the heavy Character Progression / Echoes icon grid.
+- The previous native Saved Builds UI scanner remains as a compatibility fallback if the Ebonhold PerkService methods are unavailable.
+- Echo build cache format is bumped internally to version 3 to retain server slot metadata; ZenUI database schema remains 44.
+- No automatic level-80 restore behavior from EchoBuildRestore is enabled by default; this change only adopts the cleaner authoritative build backend for ZenUI's existing Builds UI.
+
+ZenUI 1.0.10 - combat-safe Zen menu access
+- Zen replacement windows now remain the preferred presentation in combat instead of intentionally failing or falling back to Blizzard UI.
+- Adds persistent secure override bindings for Character/Skills/Reputation/Currency, Spellbook, Social/Friends/Guild/Raid, Dungeon Finder, Talents, Achievements, Statistics and PvP; bindings are installed out of combat and continue to toggle the Zen frames during lockdown.
+- Character mode tabs now use secure click routing and the equipped-item buttons live under a single secure-aware equipment layer, allowing C/U and Character tab changes to work without insecurely hiding secure equipment targets.
+- The Zen Spellbook no longer intentionally opens Blizzard parchment in combat. Its last fully armed secure spell page is prepared before combat and remains usable/visible while secure attribute refreshes are deferred until combat ends.
+- Major-panel auto-exclusivity is paused during combat so opening one Zen panel cannot taint another protected Zen panel by trying to hide it from insecure OnShow code.
+- The Q menu now prefers direct Zen module routes over Blizzard toggle globals where possible.
+- Protected gameplay changes remain subject to Wrath combat lockdown: opening/reading a menu is allowed, but operations such as changing talents, bindings, profiles, secure layouts or other protected actions may still be deferred/refused until combat ends.
+
+ZenUI 1.0.9 - native-mirrored QUEST_GREETING compatibility
+- Fixes Ebonhold quest-list NPCs such as Sky-Reaver Korm still falling back to Blizzard parchment after 1.0.8.
+- Zen now mirrors the hidden native QuestFrame's already-rendered GreetingText and QuestTitleButton rows for QUEST_GREETING, just as the Gossip path already mirrors native gossip rows.
+- All direct GetGreetingText/GetNumActiveQuests/GetActiveTitle/GetAvailableTitle/GetAvailableQuestInfo fallback calls are guarded so a private-server API quirk cannot abort Zen rendering.
+- If Blizzard reports quest rows but Zen cannot safely mirror/decode them, native parchment remains the hard fallback rather than showing a blank panel.
+
+ZenUI 1.0.8 - QUEST_GREETING Zen rendering fix
+- Fixes direct QuestFrame greeting/list NPCs falling back to Blizzard parchment even though the interaction itself was healthy.
+- QUEST_GREETING now uses the Zen Conversation heading without calling GetTitleText before a specific quest is selected; some Ebonhold providers throw on that lookup.
+- Direct quest NPC names prefer the stock questnpc unit with npc fallback for Ebonhold compatibility.
+- Any future Zen Conversation render exception is recorded once in /zenui errors while the native hard fallback remains available.
+
+ZenUI 1.0.7
+- Direct QUEST_GREETING/DETAIL/PROGRESS/COMPLETE pages now use a bounded Ebonhold payload-coherence probe before Zen renders them.
+- Fixes single ready-quest NPCs that skip GOSSIP_SHOW and could produce no visible quest window while multi-quest NPCs worked normally.
+- Quest and gossip probes are now protected; transient/private-server API errors fall back to native UI instead of repeating every frame.
+
+ZenUI 1.0.6 - Conversation hard native fallback
+- Makes Zen Conversation opening transactional: native Gossip/Quest presentation is only kept suppressed after the Zen interaction frame is confirmed visible.
+- Adds an explicit native QuestFrame fallback permission matching the existing GossipFrame safety path.
+- If any Ebonhold quest/gossip payload throws or cannot render through Zen, the already-authoritative Blizzard/Ebonhold interaction frame is restored immediately instead of leaving the player with no window.
+- Preserves the 1.0.5 quest lifecycle fixes and all other 1.0.x behavior.
+
+ZenUI 1.0.5 - Quest accept / turn-in Conversation lifecycle fix
+- Fixes accepted quests leaving stale Zen quest ownership that could suppress a later GOSSIP_SHOW when returning to an NPC to turn the quest in.
+- Successful QUEST_ACCEPTED now explicitly closes Zen's old quest interaction lifecycle instead of relying only on Ebonhold consistently emitting QUEST_FINISHED.
+- AcceptQuest/GetQuestReward mark the current quest page as terminal so the next gossip/list event can safely take ownership even when QUEST_FINISHED is missing or late.
+- Adds defensive stale-state recovery: an invisible old quest lifecycle flag can no longer block a new Conversation window.
+- Preserves the existing protection against late GOSSIP_SHOW stealing an actively visible quest page.
+
+ZenUI 1.0.4 - Guild Control initialization / interaction hotfix
+- Fixes the Zen-skinned Guild Settings panel opening with no selected rank, which left the dropdown and permission controls effectively inert.
+- Ensures Blizzard/Ebonhold's own GuildControlPopupFrame initializer has a valid rank state before the panel is presented, then performs one native refresh after show.
+- Stops disabling mouse input on the hidden native Friends/Guild host while Guild Settings is open; the host stays transparent underneath Zen but remains fully alive for Ebonhold's control lifecycle.
+- Keeps the authoritative native rank/permission scripts and APIs intact; Zen only skins and positions the existing Guild Control UI.
+
+ZenUI 1.0.3 - Per-frame aura layout
+- Adds HUD & Combat -> Aura Layout for Player, Target, Focus and Pet frames.
+- Each frame can independently show/hide its aura rows.
+- Buffs and Debuffs each have their own Top/Bottom placement control per frame.
+- When both aura types use the same side, ZenUI stacks the rows automatically instead of overlapping them.
+- Bottom aura rows anchor below attached class resources, castbars and target/focus-target frames so icons do not cover those elements.
+- Target keeps the existing default behavior (buffs above, debuffs below); Player/Focus/Pet aura rows default off until enabled.
+- Database schema 44 migrates the old targetBuffsAbove preference into the new targetBuffPosition setting.
+
+ZenUI 1.0.2 - Auto Invite queue + custom triggers
+- Auto Invite now queues and paces whisper invites to prevent near-simultaneous requests being dropped.
+- Adds a public /zenui > Auto Invite settings page.
+- Adds configurable comma-separated invite messages such as: inv, +, me.
+- Custom trigger matching is case-insensitive; legacy inv keeps standalone-word compatibility.
+- Database schema 43 adds the per-profile autoInviteTriggers setting.
+
+ZenUI 1.0.1 - Zen Guild Settings presentation hotfix
+- Keeps the working native/Ebonhold Guild Control backend and protected permission scripts, but no longer exposes the full Blizzard Friends/Guild window when a Guild Master clicks Guild Settings.
+- The native Friends/Guild host now remains invisibly active only while the editor is open so Ebonhold can initialize/update the authoritative rank controls.
+- Positions GuildControlPopupFrame inside the visible Zen Guild panel and applies Zen backdrop, typography, edit-box, button, checkbox and guild-bank-permission styling without replacing protected GuildControl actions.
+- Closing Guild Settings restores the native host state cleanly and returns to the Zen Guild roster.
+
+ZenUI 1.0.0 - First full release
+- Promotes the tested 0.9.190 baseline to the first full ZenUI release.
+- Removes developer/testing entries from the public /zenui help and settings navigation while retaining diagnostic commands and the internal diagnostics page for support use.
+- Cleans the settings sidebar spacing, constrains button labels to their controls, and polishes release-facing labels/copy for readability.
+- Removes Extended Bank decoder/transport/move-trace diagnostics from the public Bank settings page while keeping the underlying compatibility instrumentation available internally.
+- Synchronizes runtime, TOC and release documentation version reporting at 1.0.0.
+- No gameplay systems were intentionally rewritten for this release pass; the confirmed Pet Bar, pet keybinds, combat Spellbook fallback, Bags/Bank drag, Conversation recovery, Guild Settings handoff, secure equipped enhancements, physical sorting, stack splitting and Ebonhold progression fixes remain intact.
+
+ZenUI 0.9.190 - Echoes progression hotkey parent-window fix
+- Fixed the Character Progression: Echoes keybind opening Ebonhold's narrow inner Echoes content frame instead of the complete Character Progression window.
+- Echoes shortcuts no longer call ProjectEbonholdEmpowermentFrame:Show() directly. They now resolve/click the real combined-window Echoes tab when available, otherwise initialize through Ebonhold's native Character Progression launcher and select Echoes.
+- The progression retry/fallback path is forbidden from directly showing the inner Echoes frame, preventing the orphan mini-window from reappearing on slower UI initialization.
+- All 0.9.189 secure equipped-enhancement, Pet Bar/keybind, combat Spellbook, Bags drag and Conversation/Guild fixes are unchanged.
+
+ZenUI 0.9.189 - Secure equipped-item enhancement targeting
+- Fixed Ebonhold's "action only available to the Blizzard UI" popup when applying enchants, armor kits, scopes, stones and other item-target effects to gear equipped in the Zen Character panel.
+- Zen no longer manually calls the native PaperDoll OnClick/PickupInventoryItem path while SpellCanTargetItem() is active; that insecure forwarding was the taint source.
+- Each Zen equipment slot now has a normally mouse-transparent SecureActionButtonTemplate overlay with a fixed target-slot attribute. It only takes mouse input while an item-target spell is active, letting Wrath's native secure target-slot handler call UseInventoryItem(slot).
+- Normal Character clicks, Ctrl preview, Shift+Right socketing, drag/equip behavior and all 0.9.188 Pet Bar/keybind work are otherwise unchanged.
+
+ZenUI 0.9.188 - Pet Bar keybind mode
+- Zen keybind mode now recognizes PetActionButton1..10 alongside the six normal action bars.
+- Hovering a pet ability and pressing a key binds Wrath's native BONUSACTIONBUTTON1..10 command, preserving the protected PetActionButtonDown/Up path in combat.
+- Delete/Backspace clears the hovered pet slot binding, and pet hotkey labels are refreshed immediately.
+- Pet bars hidden by Combat/OOC or mouseover behavior are temporarily revealed while keybind mode is active when a live pet action bar exists.
+- 0.9.187 Pet Bar ownership/visibility, native combat Spellbook, Bags drag and prior Conversation/Guild fixes are unchanged.
+
+ZenUI 0.9.187 - Pet Bar visibility + native combat Spellbook + reliable Bags drag
+- PetActionButton1..10 are now explicitly re-shown after Zen reparents them; 0.9.185/186 could leave correctly-positioned native pet buttons permanently hidden by Blizzard's previous PetActionBarFrame state.
+- Pet Bar availability uses tolerant Ebonhold fallbacks (PetHasActionBar / HasPetUI / GetPetActionInfo / UnitExists) while keeping the native secure pet controls authoritative.
+- The default TOGGLESPELLBOOK binding is no longer overridden by Zen. In combat, P now opens Blizzard/Ebonhold's native secure Spellbook so click-to-cast and spell dragging use the protected path that actually works on this client.
+- Out of combat, the native SpellBookFrame OnShow hook still redirects immediately to the normal Zen Spellbook replacement.
+- Bags direct dragging now uses an independent UIParent title drag surface, avoiding Ebonhold's behavior where a mouse-disabled Bags shell prevented its child drag handle from receiving drag events.
+- 0.9.186 Conversation/quest keyboard recovery, Guild Settings native handoff, bag sorting and confirmed Stack Split logic are unchanged.
+
+ZenUI 0.9.186 - Bag/Bank direct drag + multi-quest Conversation recovery
+- Bags now have a dedicated title-bar drag handle while keeping the slot shell mouse-transparent.
+- Bank now has an explicit title-bar drag handle using the existing profile-aware ZenBank mover.
+- Conversation quest ownership now follows explicit quest lifecycle state instead of stale hidden Blizzard QuestFrame sub-panels.
+- QUEST_FINISHED fully releases Zen quest ownership so a multi-quest NPC can immediately reopen/return to its remaining quests.
+- Suppressed native Quest/Gossip frames now also have keyboard input disabled/restored, preventing an invisible Ebonhold frame from eating Space/movement keys.
+- Interaction-local keyboard focus is released on close/finish without touching chat or unrelated edit boxes.
+
+ZenUI 0.9.185 - Guild Control native handoff + Pet Bar ownership
+- Guild Settings now temporarily opens the complete native Friends/Guild + Guild Control path instead of reparenting only GuildControlPopupFrame into Zen; closing it returns to the Zen Guild panel.
+- This preserves Blizzard/Ebonhold's authoritative rank/permission editor lifecycle so visible controls remain functional.
+- PetActionButton1..10 are now reparented to the Zen Pet Action Bar holder, matching the proven stance/form ownership model while keeping native secure scripts/actions authoritative.
+- Pet bar layout is reasserted on pet/control changes outside combat and safely deferred during combat.
+
+ZenUI 0.9.184 - Real queued physical bag/bank sorting
+- Retires the 0.9.182 visual-sort mode because displayed positions must match real inventory slots for normal interaction.
+- Adds a physical 3.3.5 sorter modeled on the proven queue/lock-tracking architecture used by the supplied Wrath ElvUI reference.
+- Plans/rechecks one move at a time, waits for Ebonhold slot locks/BAG_UPDATE to settle, and safely handles a displaced cursor item before continuing.
+- Sorts normal bags and normal Bank/bank-bag storage physically; special bag families are sorted only within compatible containers.
+- Extended/Void storage is never touched.
+- Bag buttons always remain mapped to their real physical bag/slot positions.
+
+ZenUI 0.9.183 - Conversation reliability + settings search
+- Reworks Ebonhold Gossip/Conversation handoff into a short bounded retry state machine instead of a one-shot 0.12s decision.
+- Zen now accepts native-rendered GossipTitleButton rows as valid payload when the public gossip APIs are temporarily incomplete.
+- If Zen cannot safely decode an interaction after the grace window, it always restores the native/Ebonhold GossipFrame instead of leaving no window visible.
+- Adds an explicit native-gossip fallback state so Zen's own OnShow hook cannot immediately suppress a fallback it just restored.
+- Adds a /zenui settings search box with live page results built from page labels, visible setting text and useful aliases.
+- Search is whitespace/punctuation-insensitive, so queries such as actionbars, darkmode, clock, guild, splitstack and conversation jump to the relevant page.
+
+ZenUI 0.9.182 - Safe visual Bag / Bank sorting
+- Replaces physical cursor-based sorting with view-only sorting in ZenUI.
+- Sort/Unsort instantly reorders displayed bag buttons while every button remains mapped to its real bag+slot.
+- No PickupContainerItem calls are used by the public Sort buttons, so sorting cannot leave items on the cursor or trigger item locks.
+- Normal Bank cells use the same view-only sort; Ebonhold Extended/Void storage stays in native order.
+- Reviewed the supplied Wrath Bagnon build: it does not provide a hidden/native physical sorter, reinforcing the view-only approach for this client.
+
+ZenUI 0.9.181 - Atomic bag/bank sorting
+- Re-enables Bags/Bank Sort on Ebonhold using atomic cursor transactions: every source/swap/return sequence completes before yielding, so no item remains visibly carried between sort steps.
+- Bank Sort uses the same atomic sorter and never touches Extended/Void storage.
+
+ZenUI 0.9.180 - Socket skin font fix / explicit sort availability
+- Fixes the ItemSocketing ADDON_LOADED "Font not set" error by assigning the Zen font before writing the replacement close-button X.
+- Leaves the now-working stack-split path unchanged.
+- Bag and Bank Sort now show SORT N/A when the client exposes no native sorter; the unsafe cursor-based fallback remains disabled.
+- Removes the redundant second GetContainerItemInfo() read immediately before OpenStackSplitFrame().
+- Ebonhold can transiently mark the slot locked during PostClick; Zen now trusts the already-validated count/lock state from RequestStackSplit(), matching Wrath's native one-check flow.
+- Bag diagnostics remain available with /zenui bagtrace and /zenui bagdoctor.
+- Unsafe cursor-based sorting remains disabled because this Ebonhold client exposes no native SortBags/SortBankBags/C_Container sort API.
+
+ZenUI 0.9.178 - Stack Split direct native path / safe Sort policy
+- Removes the deferred OnUpdate stack-split scheduler after diagnostics proved it never fires on this Ebonhold client.
+- Shift+Left/Shift+Right stack splitting now calls the native OpenStackSplitFrame directly from the completed bag click, then raises it above Zen Bags.
+- Keeps the real SplitContainerItem backend and existing chat-link/socket/dressing-room modifier priorities.
+- Confirms this Ebonhold client exposes no SortBags, SortBankBags or C_Container sorting API.
+- The unsafe cursor-based fallback sorter remains disabled rather than visibly picking items up or risking inventory movement.
+
+ZenUI 0.9.177 - Bag interaction diagnostics
+- Diagnostic-only bag build: no new split/sort behavior guesses.
+- Adds /zenui bagdoctor for stack-split API, modifier, frame-layer and native-sort capability reporting.
+- Adds /zenui bagtrace on|off to trace the exact PreClick/PostClick and StackSplitFrame path on the live Ebonhold client.
+- Disables ZenUI's cursor-based fallback sorter; Sort now only runs when the client exposes a genuine native sort API.
+- Preserves all 0.9.176 functionality outside the bag sort fallback.
+
+ZenUI 0.9.176 - Shift+Right stack split compatibility
+- Bags: Shift+Right Click now opens Stack Split for stackable items (>1) as well as the existing Shift+Left Click path.
+- Shift+Right Click on single equipment items remains reserved for native socketing, so the two gestures no longer conflict.
+- Reuses the same deferred high-frame-level StackSplit popup path so the selector stays above Zen Bags.
+
+ZenUI 0.9.175 - Sort state machine + visible Stack Split
+- Reworks Zen's fallback bag/bank sorter into a paced state machine that expects its own inventory changes instead of aborting on them.
+- Performs one inventory pickup/drop step at a time and waits for Ebonhold item locks/cursor state between steps.
+- Shift+Left Click stack splitting now opens on the next frame and is explicitly raised above the Zen Bags panel on TOOLTIP strata.
+- Preserves Shift+Click chat links when the chat edit box is genuinely focused, Ctrl+Click dressing room, and Shift+Right Click socketing.
+
+ZenUI 0.9.174 - Stack Split + Bag/Bank Sort
+- Bags: restores reliable Shift/SPLITSTACK + Left Click by snapshotting the modifier before the secure proxy runs and only treating chat as active when the edit box is actually visible/focused.
+- Bags: adds a SORT button. Uses Ebonhold/native sorting when exposed, otherwise applies a conservative Zen sorter grouped by bag family without merging identical stacks.
+- Bank: adds a SORT button for the main bank and equipped bank bags; Extended/Void storage is intentionally left untouched.
+
+ZenUI 0.9.173 - Tester feedback pass
+- Guild: adds a Guild Settings button for Guild Masters using Blizzard/Ebonhold's authoritative rank/permission editor.
+- Guild: adds selected-member Public Note / Officer Note editing inside ZenUI.
+- Guild: disabling the Zen Guild replacement now has a hard native Friends/Guild fallback instead of leaving the Guild tab inaccessible.
+- Layout: major Zen replacement panels can be dragged directly by their header; positions still save through the normal profile-aware mover system.
+- Appearance: adds an optional Dark Mode for near-black panel/background styling.
+- Character Progression: adds an Open/Close keybind and fixes Skill Tree routing so Zen selects the real combined-window tab instead of showing an inner frame by itself.
+- Chat: adds input-box opacity, height and font-size controls in addition to the existing chat panel controls.
+- Unit Frames: adds Enemy buffs above Target frame, enabled by default; target debuffs remain below.
+- Minimap: adds a configurable half-hour clock offset from server time for alternate time zones.
+
+ZenUI 0.9.172 - Class-aware Character resource stat
+- Replaces the generic Character -> Base "Power" row with the player's live resource name: Mana, Rage, Energy, Runic Power, Focus, etc.
+- Resource label follows UnitPowerType dynamically, so Druid forms can change between Mana/Rage/Energy without reopening the Character panel.
+- Mana tooltip includes current/max mana plus Intellect context; Rage, Energy and Runic Power receive resource-specific explanations.
+- Keeps Intellect as its own primary stat rather than incorrectly treating it as the resource itself.
+
+ZenUI 0.9.170 - Warrior stance + raid subgroup layout fixes
+- Removes the 0.9.170 raidN-by-name subgroup remapping that made non-leader raid layouts worse on Ebonhold.
+- Raid frames now stack deterministically in roster order, five members per visual group, independent of unreliable non-leader subgroup metadata.
+- Keeps the 0.9.170 Warrior/DK native stance-bar layout fix unchanged.
+- Stance/Form bar now refreshes native shapeshift data before Zen lays it out, sizes the holder to the actual number of forms, and only exposes real stance buttons.
+- Possess buttons no longer overlap Warrior/Druid/DK stance buttons; they are appended only while the native possess bar is genuinely active.
+- Raid frame subgroup layout now maps each fixed raidN secure unit to GetRaidRosterInfo by player name instead of assuming raidN index always equals roster index. This fixes subgroup columns/stacks on Ebonhold when non-leaders receive a different raid-token ordering.
+- Raid rank/class metadata follows the resolved roster entry while targeting/clicking remains bound to the original secure raidN unit.
+
+ZenUI 0.9.169 - Glyph rune-style filled/empty consistency
+- Glyph sockets now keep the same rune symbol in both states: grey when empty, type-coloured when filled.
+- Filled Major glyph sockets use the same rune icon tinted orange; filled Minor sockets use the same rune icon tinted blue.
+- Removes the spell-icon swap introduced in 0.9.168 while preserving native glyph data, placement, tooltips and removal behavior.
+- Empty Major/Minor glyph sockets are now deliberately neutral grey instead of carrying bright type colours.
+- Applied glyph sockets now prefer the glyph spell's real icon instead of Wrath's monochrome socket-rune texture.
+- Filled sockets gain a clear Major/Minor coloured icon border, while locked sockets remain dark grey.
+- No glyph backend, placement, removal, tooltip, column mapping, or native-window redirect behavior changed.
+
+0.9.167 - Glyph item native-window redirect
+- Right-clicking/using a glyph item now keeps Blizzard/Ebonhold glyph targeting but redirects the visible UI to ZenUI -> Glyphs.
+- Intercepts GlyphFrame_Open, GlyphFrame_Toggle, PlayerTalentFrame_OpenGlyphFrame, native GlyphFrame OnShow, and USE_GLYPH timing.
+- Prevents the original Blizzard parchment Talent/Glyph window from replacing the Zen-native Glyphs tab.
+
+ZenUI 0.9.166 - Equipped Enchant / Attachment Targeting Fix
+- Restores native equipped-item targeting from Zen Character equipment slots for enchants, armor kits, scopes, sharpening/weight stones and other item attachments.
+- Active cursor/item/spell targeting is forwarded through the corresponding Blizzard Character paper-doll slot first so Ebonhold-specific hooks remain authoritative.
+- Falls back to PickupInventoryItem(slot) exactly like stock Wrath when no native slot script is available.
+- Character equipment slots now refresh native cursor feedback on hover while an item-target action is active.
+- Preserves Shift+Right Click socketing, Ctrl+Click dressing-room preview, normal right-click item use and all 0.9.165 features.
+
+ZenUI 0.9.165 - Glyph Column Mapping Fix
+- Corrects Wrath glyph socket mapping in the Zen-native Glyphs tab.
+- Major Glyphs now always occupy the left column (native socket IDs 1, 4, 6).
+- Minor Glyphs now always occupy the right column (native socket IDs 2, 3, 5).
+- Preserves native glyph APIs, placement/removal, tooltips, and all 0.9.164 features.
+
+ZenUI 0.9.164 - Integrated Callboard Tracker
+- Added Zen-native Callboard cooldown / raid-save tracker inspired by the supplied CallBoard CD Tracker workflow.
+- Tracks active Board quest and the last three completed Board quests per character.
+- Shows Level 80 raid Board availability plus 10/25-player lockout status for OS, EoE, Naxxramas and Ulduar.
+- Added Quick Menu and /zenui callboard access.
+- Event-driven: no permanent polling loop; short ticker only while confirming a disappearing quest.
+
+ZenUI 0.9.163 - Native Zen Glyphs view
+- Replaced the embedded Blizzard GlyphFrame/parchment overlay with a fully Zen-rendered Glyphs tab inside the Talents window.
+- Displays three Major and three Minor glyph sockets as Zen cards with active glyph icon/name, empty/locked state, active-spec label and native hover tooltips.
+- Keeps Blizzard/Ebonhold glyph APIs authoritative for placement, replacement confirmation, removal, chat linking and socket compatibility.
+- Use/right-click a glyph item, then click a matching Zen socket; Shift+Right Click removes an applied glyph and Shift+Click links it to chat.
+- Blizzard_GlyphUI is loaded only as a hidden backend when needed; its visual GlyphFrame is no longer reparented or shown on top of ZenUI.
+- Added native glyph events so the Zen view refreshes immediately after add/remove/update/use actions without background polling.
+- Preserves all 0.9.162 Social Shift-click, Inspect, Affix diagnostics, Trade, Action Bars and other prior fixes.
+
+ZenUI 0.9.162 - Friends Add Friend Shift-click bridge
+- Shift+Left Click a player name in chat while Zen Social -> Friends is open now fills the Add Friend name box.
+- The shortcut is context-only and does not automatically add the player; Enter/Add Friend still confirms the action.
+- Preserves Mail recipient, Guild invite, quest/item linking and other existing Shift-click destinations through the existing chat-link bridge priority chain.
+- Friends footer now advertises the Shift-click shortcut.
+
+ZenUI 0.9.161
+- Inspect: fixed equipped-item hover tooltips on Ebonhold when GameTooltip:SetInventoryItem(unit, slot) fails for inspected units.
+- Inspect now falls back to the full GetInventoryItemLink() hyperlink, preserving item/enchant/gem data and Shift comparison.
+
+ZenUI 0.9.160 - Affix Doctor hover-target diagnostics
+- Replaces the default broad Affix Book frame walk with a precise GetMouseFocus()-anchored diagnostic.
+- Hover a real Affix Book row, keep the cursor still, then run /zenui affixdoctor to inspect that exact row, its parent chain, sibling list, likely affix data fields/attributes and current tooltip text.
+- Keeps the old bounded global/UI search available only as /zenui affixdoctor scan.
+- Avoids the unrelated VideoOptionsFrame/etc. noise seen in the first diagnostic and remains strictly on-demand with no background polling.
+- Preserves all 0.9.159 and earlier ZenUI functionality.
+
+ZenUI 0.9.159 - Affix Book diagnostics
+- Added /zenui affixdoctor (alias /zenui affixdebug) for targeted Ebonhold Enchanted Anvil / Affix Book discovery.
+- Diagnostic is strictly on-demand: it performs no background polling or periodic scans.
+- Reports matching affix/forge/anvil globals, bounded nested API/service candidates, visible Affix Book UI anchors, parent hierarchy, candidate rows/buttons, IDs and useful attached fields.
+- Intended workflow: insert an item at the Enchanted Anvil, open the native Affix Book, run /zenui affixdoctor, then send the output back so ZenUI Collections can be built from Ebonhold's authoritative data rather than a hard-coded list.
+- Preserves all 0.9.158 loot, Character stats, Mail, bag interactions, Trade, Action Bars and Quick Menu fixes.
+
+ZenUI 0.9.158 - Shift manual-loot override restore
+- Restores Wrath's native AUTOLOOTTOGGLE modifier to Shift.
+- With Auto Loot enabled, holding Shift while opening loot now forces the manual Zen loot window instead of auto-looting the corpse/container.
+- Keeps the native loot backend authoritative; no per-frame polling or custom loot consumption added.
+
+ZenUI 0.9.157 - Character stat breakdowns / cap references
+- Expanded Character -> Equipment stat tooltips with Blizzard-style raw/effective breakdowns.
+- Hit, expertise, armor penetration and defense tooltips now include standard Wrath raid-boss cap references and remaining gap where meaningful.
+- Melee damage tooltip now includes off-hand damage/speed/DPS without consuming a separate stat row.
+- Spell stats now expose per-school spell power/crit, spell penetration and combined mana-regeneration detail.
+- Defense stats now expose rating contributions, block value and level-scaled (+3) defense reference.
+- Cap lines are explicitly reference values; talents, racials, debuffs and Ebonhold-specific effects may alter actual requirements.
+
+ZenUI 0.9.156 - Mail recipient Shift-click bridge
+- Shift+Left Click a player name in chat while Zen Mail is open to fill the Send Mail recipient.
+- Automatically switches Inbox -> Send Mail when needed.
+- Context-only interception preserves Guild invite and all other existing Shift-click behavior when Mail is not open.
+- Added an in-panel hint for the shortcut.
+
+ZenUI 0.9.155 - Bag stack split modified-click fix
+- Restores Shift+Left Click stack splitting from Zen Bags when no chat edit box is active.
+- Zen now reserves the configured SPLITSTACK modifier before the secure bag proxy can lose it on Ebonhold, then opens Blizzard's native StackSplitFrame and SplitContainerItem callback directly.
+- Shift+Left Click still inserts item links when chat is active, Ctrl+Click dressing-room preview remains intact, and Shift+Right Click socketing is unchanged.
+
+ZenUI 0.9.154 - Combat Spellbook drag secure pickup fix
+- Restores spell pickup/dragging from the Zen Spellbook while in combat on Ebonhold builds that reject PickupSpell through a normal addon pcall from a protected spell row.
+- Spell dragging now prefers Blizzard's securecall trampoline and falls back to the direct PickupSpell API where needed.
+- Secure click-to-cast attributes and the Zen action-bar drop path are unchanged.
+- Corrects the Core/Init.lua version string so the live core, TOC and X-ZenUI-Version all report 0.9.154 consistently.
+- All 0.9.153 Talents/Glyphs integration, DK stance recovery, socketing, Trade and Quick Menu fixes are preserved.
+
+ZenUI 0.9.153 - Glyphs integrated with Talents
+- Added a dedicated Glyphs tab to the Zen Talents panel so talents and glyph management live in the same window.
+- Reuses Blizzard_GlyphUI's native Wrath GlyphFrame backend for socket placement, removal confirmations, tooltips and glyph events rather than duplicating secure/native behavior.
+- The normal TOGGLEINSCRIPTION / ToggleGlyphFrame entry point now opens Zen Talents directly on the Glyphs tab when Zen Talents is enabled.
+- Native PlayerTalentFrame talent-group state is kept synchronized so glyphs follow the active Wrath/Ebonhold specialization correctly.
+- Disabling Zen Talents restores the native GlyphFrame parent/layout cleanly.
+- All 0.9.152 Death Knight stance/Presence fixes and prior UI fixes are preserved.
+
+ZenUI 0.9.152 - DK stance / Presence bar recovery
+- Fixed native Death Knight Presence buttons disappearing after ZenUI took ownership of the normal action bars.
+- Zen now parents native ShapeshiftButton controls directly to the Zen Stance / Form holder out of combat while preserving Blizzard/Ebonhold secure stance scripts.
+- UPDATE_SHAPESHIFT_FORMS and UPDATE_SHAPESHIFT_USABLE now reassert the stance layout instead of only restyling buttons, preventing FrameXML refreshes from reclaiming/hiding the bar.
+- Native button parents are captured and restored when Zen action bars are disabled, preserving a clean Blizzard-layout fallback.
+- No changes to rune display, normal action paging, sockets, Quick Menu, Trade, or Echo discovery.
+
+ZenUI 0.9.151 - Equipped-item socketing fix
+- Restores the native equipped-item socket path on Zen Character equipment slots.
+- Shift+Right Click (or the configured SOCKETITEM modifier) now calls SocketInventoryItem(slot) for equipped gear.
+- Uses the same Ebonhold-safe physical-modifier fallback as Zen Bags when IsModifiedClick("SOCKETITEM") is unreliable.
+- Restores ordinary Right Click -> UseInventoryItem behavior on equipped Character slots.
+- Bag socketing and all 0.9.150 fixes are preserved.
+
+ZenUI 0.9.150 - Bag socket modified-click ownership fix
+- Restores Shift+Right Click socketing from Zen Bags on Ebonhold.
+- Reserves the configured SOCKETITEM right-click modifier before the secure native bag proxy can consume it.
+- Uses Blizzard IsModifiedClick plus the physical configured modifier as a fallback for Ebonhold clients that lose SOCKETITEM state through delegated clicks.
+- Bank quick-drop keeps precedence while the bank is open; normal right-click item use remains native.
+
+ZenUI 0.9.149 - Quick Menu Echo discovery performance fix
+- Opening the floating Q Quick Menu is now strictly cache-only and never opens Character Progression/Echoes as a side effect.
+- Removed the automatic Echo discovery fallback from Quick Menu refreshes; this prevents Ebonhold's heavy Echo icon grid from being initialized just because Q was opened.
+- Clicking a cached Echo build will no longer auto-open the Echoes page if its native Saved Build row is not already loaded. Zen prints a clear instruction instead of causing a large hitch.
+- Added an explicit Refresh Saved Builds button inside Q. It only scans native Ebonhold controls that are already loaded and never opens Character Progression itself.
+- To seed/refresh the list, open Echoes -> Saved Builds manually once, then click Refresh Saved Builds. Once Ebonhold's native rows are loaded, Q can use them without navigating through the progression UI.
+- All 0.9.148 Trade partner-money fixes are preserved.
+
+ZenUI 0.9.148 - Trade partner money synchronization
+- Fixed the Zen Trade window remaining at "Partner money: 0" when the other player adds gold/silver/copper.
+- Partner money now mirrors Blizzard's native TradeRecipientMoneyFrame as a second authoritative source in addition to GetTargetTradeMoney().
+- TRADE_MONEY_CHANGED triggers a short, bounded 0.55-second recheck window for Ebonhold clients where the target-money API settles just after the event; there is no permanent polling.
+- If Ebonhold supplies a copper amount with TRADE_MONEY_CHANGED, Zen may use that value only during the short sync window so stale money cannot survive a removal/reset.
+- Non-zero partner offers are highlighted green for an immediate visual tell.
+- Trade enchant targeting and accepted-state visuals are unchanged.
+
+ZenUI 0.9.147 - Trade acceptance visual feedback
+- Adds a translucent green overlay, bright green border and ACCEPTED badge independently to each side of the Trade window.
+- TRADE_ACCEPT_UPDATE now accepts both numeric and boolean-style accepted states for Ebonhold compatibility.
+- Acceptance visuals reset safely on new/closed trades and clear when the native trade state resets.
+
+
+- Trade now shows a clear Accept / Cancel pair instead of the confusing Cancel Accept / Cancel wording.
+- After you accept, the left action becomes Undo Accept so it still exposes Blizzard/Ebonhold's native CancelTradeAccept behavior without looking like a second trade-cancel button.
+- No trade targeting, enchant-slot, Echo Saved Builds, or performance behavior changed.
+
+ZenUI 0.9.145 - Echo Saved Builds section fix
+- Fixed Quick Menu Echo Saved Builds discovery leaking Wishlist entries, mount names, and other Echo-page controls into the build list.
+- Discovery now uses the native Saved Builds and Wishlists section headings as hard vertical boundaries and prefers the smallest frame containing that exact section.
+- Invalid 0.9.141-0.9.144 Echo build caches are discarded automatically so stale false entries do not remain after updating.
+- Current-build highlighting now prefers the native Saved Build row checked state when Ebonhold exposes it.
+
+ZenUI 0.9.144 - Bag Shift-click chat links
+- Restored Shift+Left Click item linking from Zen's custom Bags into the currently active chat edit box.
+- The secure native container proxy remains authoritative for normal/protected item use; Zen only inserts the chat link when Ebonhold's delegated proxy fails to modify the active chat text.
+- Added duplicate protection by snapshotting the active chat edit box before the secure click and only applying the fallback when the native click made no change.
+- Ctrl+Click dressing-room preview, Shift+Right Click socketing, bank quick-drop modifiers, Trade targeting, and the 0.9.143 performance hotfix are preserved.
+
+ZenUI 0.9.143 - Performance regression hotfix
+- Removed the 0.9.141 Echo Saved Builds global _G scan from routine MicroMenu setup/appearance refreshes.
+- Echo Saved Build discovery is now on-demand when the player opens the Q menu or explicitly requests a refresh; background UI refreshes use the cached build-name list only.
+- Native Echo discovery now searches the Character Progression hierarchy plus UIParent immediate children and caches the confirmed Saved Builds container instead of walking every global frame/userdata object.
+- Echo discovery/activation retry cadence reduced from 12.5 Hz to 4 Hz while the native dropdown is being initialized.
+- Trade tooltip/cursor OnUpdate maintenance now runs only on the currently hovered trade slot rather than all custom player/recipient slots every rendered frame.
+- No gameplay behavior was intentionally removed: native Echo Saved Build selection and Trade enchant/item-modification targeting remain intact.
+
+ZenUI 0.9.142 - Trade enchant / item-modification targeting
+- Restored stock Wrath click behavior to Zen's custom Trade window on both player and recipient item slots.
+- Partner-side trade slots now forward normal clicks to ClickTargetTradeButton(), including slot 7 (the non-traded/enchant slot), so enchants and other targeted item modifications can be applied to another player's item.
+- Player-side slots now preserve right-click, drag, modified-item-click, tooltip refresh, and cursor update behavior from the native TradeFrame templates.
+- Recipient slots now preserve modified-item-click, live tooltip, and targeting-cursor updates.
+- Native TradeFrame remains invisibly authoritative for trade state and TRADE_POTENTIAL_BIND_ENCHANT confirmation handling.
+
+ZenUI 0.9.141 - Native Echo Saved Builds in Quick Menu
+- Replaced the 0.9.140 two-name Travel/DPS hot-slot concept with a direct mirror of Ebonhold's native Echoes -> Saved Builds dropdown.
+- The floating Q menu now discovers up to 10 native Saved Build rows and lists their real names automatically.
+- Clicking a Quick Menu build invokes the same native Ebonhold Saved Build row instead of searching for a separate Activate/Switch button.
+- The current/last selected build is marked in the Quick Menu when Zen can determine it.
+- Added character-specific build-name caching so Zen can retain the discovered list between UI refreshes without copying any Echo selections.
+- If Ebonhold only creates the dropdown rows lazily, Zen can temporarily initialize the native Echoes UI and retry the real row selection.
+- /zenui build now lists native Saved Builds; /zenui build <name> selects one; /zenui build refresh and /zenui build doctor remain available.
+- /zenui -> Menu & Launcher now explains the native Saved Builds mirror and provides a Refresh Saved Builds button.
+
+ZenUI 0.9.140 - Echo Hot Swap
+- Added two configurable Echo Hot Swap slots to the floating Quick Menu, defaulting to Travel and DPS.
+- Hot Swap wraps Ebonhold's native Echo Snapshot/loadout UI; ZenUI does not copy or reimplement Echo build data.
+- Exact configured build names are located inside the native Echoes/Loadouts UI and only explicit Activate/Switch/Use-style controls are clicked.
+- If ZenUI cannot identify the native action safely, it refuses to guess and leaves the Echoes page open.
+- Added /zenui -> Menu & Launcher -> Echo Hot Swap name fields.
+- Added /zenui build 1|2, /zenui build set <1|2> <name>, and /zenui build doctor.
+- Existing ActionBars, group-range, Quick Menu, Auto Invite, Character Progression and modified-item-click fixes are preserved.
+
+ZenUI 0.9.139
+- Item comparison tooltips now refresh immediately when Shift is pressed or released while already hovering an item.
+- Restored explicit Ctrl+Click dressing-room previews across Zen item links instead of relying solely on Ebonhold HandleModifiedItemClick behavior.
+- Added Ctrl+Click preview support to Zen Inspect equipment slots and mail attachment item buttons.
+
+ZenUI 0.9.138
+- Restore an explicit Shift+Left Click inspect bridge on Zen player/target/focus/party/raid unit buttons. The bridge asks Blizzard/Ebonhold to begin a real inspect session, then opens Zen Inspect, so INSPECT_READY still refreshes the equipment data normally.
+- Add a small public RequestInspect(unit) helper to the Interactions module for unit-frame and future integration use.
+- Minimap addon-button collector now respects a launcher's ZenNoMinimapCollect flag and forgets an already-collected launcher when that flag becomes true. This prevents ZenMenu's intentionally floating launcher from being pulled back into the minimap dock on the next collector maintenance pass.
+- Preserve all 0.9.137 rename migration, action-bar, group-frame, quick-menu and Character Progression fixes.
+
+ZenUI 0.9.137
+- Full project rename from RavioliUI to ZenUI.
+- Primary settings command is now /zenui (with /zen as a short alias).
+- Existing RavioliUIDB settings, profiles, mover positions and branded scale/mover keys migrate automatically into ZenUIDB.
+- New profile exports use ZUI1:, while legacy RUI1: RavioliUI exports remain importable.
+- Character Progression bindings are renamed to ZenUI and old binding assignments are migrated when possible.
+- Legacy namespace/slash aliases remain silent for transition compatibility with existing macros and companion addons.
+
+ZenUI 0.9.136 - Stronger Party/Raid range readability
+- Makes out-of-range Party/Raid members substantially easier to identify at a glance.
+- Class-colored health/power fills now fade to 32% while out of range instead of the previous subtle 72% treatment.
+- Names/health text remain at 52% and portraits at 42% so distant units are clearly dim without becoming unreadable.
+- Keeps the stable black bar backgrounds and 0.9.134 fill self-repair fully visible, avoiding the old "broken black frame" failure mode.
+- Preserves Quick Menu, ActionBars, Auto Invite, Character Progression, mover/grid, and all prior fixes.
+
+ZenUI 0.9.135 - Quick Menu frame-level visibility fix
+- Fixed Quick Menu child controls rendering underneath the popup backdrop on Wrath/Ebonhold.
+- Auto Invite, Ready Check, Raid / Group, Party & Raid Settings, and close controls now use an explicit frame level above the popup background.
+- Reasserts Quick Menu child levels during state refresh so raising/reopening the TOOLTIP popup cannot re-hide the controls.
+- Preserves 0.9.134 group-fill self-repair and all prior ActionBars/Auto Invite/Character Progression fixes.
+
+ZenUI 0.9.134 - Group fill self-repair + Quick Menu visibility
+- Party/Raid custom health and power fills now self-repair hidden/stale texture geometry during the lightweight group visual refresh.
+- Preserves the 0.9.130 moderate out-of-range treatment while preventing a valid member from remaining visually black.
+- Fixed Quick Menu Auto Invite ON fill being drawn behind the Zen backdrop.
+- Quick Menu controls are now explicitly high-contrast and includes Ready Check, Raid / Group, and Party & Raid Settings shortcuts.
+- Preserves 0.9.129 ActionBars compile fix, 0.9.131 Auto Invite, and 0.9.133 Character Progression userdata safety.
+
+ZenUI 0.9.133 - Character Progression userdata safety fix
+- Fix Character Progression menu actions and page keybinds (including Shift+P Mounts) aborting while scanning Ebonhold globals.
+- Harden MicroMenu object discovery so non-frame userdata in _G is safely ignored instead of raising "attempt to index local value (a userdata value)".
+- Preserve the 0.9.129 ActionBars module-load fix and 0.9.132 floating Quick Menu unchanged.
+
+ZenUI 0.9.132 - Floating Quick Menu
+- Added a movable floating Q launcher for fast group utilities.
+- Quick Menu currently exposes a high-contrast Auto Invite ON/OFF toggle plus Raid / Group and Party & Raid Settings shortcuts.
+- Auto Invite state is reflected by an accent status marker on the floating launcher and stays synchronized with the Raid roster toggle.
+- Added /zenui -> Menu & Launcher -> Show floating Quick Menu button.
+- Quick Menu has its own profile-aware mover in Menu / Launcher and Move All Panels.
+- Preserves the 0.9.129 Action Bars load fix, 0.9.130 group range visibility work, and 0.9.131 Auto Invite behavior.
+
+ZenUI 0.9.131 - Auto Invite group utility
+- Added an opt-in Auto Invite toggle to Zen's Raid roster controls.
+- While enabled, whispers containing the standalone word "inv" automatically invite the sender when you have permission and room.
+- When a normal party reaches 5 players, Zen asks whether to convert it to a raid instead of converting automatically.
+- If additional "inv" whispers arrive while the party is full, Zen queues those names; accepting the raid conversion invites the queued players after the raid roster becomes active.
+- Auto Invite never auto-converts without confirmation, ignores duplicate/recent requests and existing group members, and stops cleanly when toggled off.
+- Preserves the 0.9.129 ActionBars module-load fix, 0.9.130 group-frame range visibility, and mover/grid improvements.
+
+ZenUI 0.9.130 - Group frame range visibility
+- Fixes party/raid members appearing almost fully black when Zen's out-of-range presentation is active.
+- Replaces the old 0.38 whole-bar fade with a moderate fill-only fade, preserving the black bar background and readable class coloring.
+- Text/portrait indicators still dim clearly for out-of-range units without making the frame look broken.
+- Range visual state is reapplied during lightweight refreshes so appearance/layout refreshes cannot leave stale alpha state behind.
+- Preserves the 0.9.129 ActionBars module-load fix and all mover/grid improvements.
+
+ZenUI 0.9.129 - ActionBars module load fix
+- Fixes the compile-time ActionBars blocker that caused /zenui abdebug to report "ActionBars module: MISSING".
+- ActionBars:OnEvent now correctly accepts varargs before reading the vehicle-event unit argument with `...`.
+- Because the previous file could not compile, RUI:NewModule("ActionBars") never ran; this explains inert Action Bar settings, absent Action Bar movers, and Blizzard bars remaining authoritative.
+- Normalizes the fallback totem texture path escaping while touching the file.
+- Does not yet change secure-button architecture; 0.9.129 first restores the ActionBars module so runtime diagnostics can finally inspect the real bar state.
+- Preserves the proven 0.9.126 magnetic grid snapping and 0.9.128 cleaned toggle rows.
+
+ZenUI 0.9.128 - Polished mover toggle rows
+- Cleans up the high-contrast Snap/Grid toggles without changing the working magnetic snapping behavior.
+- Removes the redundant tiny checkbox from each row.
+- Gives option labels a fixed left-aligned text area and ON/OFF a dedicated fixed-width badge so text can never overlap.
+- ON remains a bright inverted row with a dark badge; OFF remains dark with a subdued gray badge.
+- Preserves the 0.9.126 magnetic visible-edge grid snapping and the Action Bar diagnostic command.
+
+ZenUI 0.9.127 - Full-row mover toggle states
+- Replaces the subtle checkbox-only mover toggle treatment with full-row state inversion.
+- ON uses a bright row with dark text; OFF uses the normal dark Zen treatment.
+- Preserves the magnetic visible-edge snapping introduced in 0.9.126.
+
+ZenUI 0.9.126 - Magnetic grid snap + unmistakable mover toggles
+- Grid snapping now magnetizes whichever visible mover edge is nearest to a grid line on each axis instead of forcing the selected lock corner.
+- This prevents the edge being lined up from jumping away simply because another lock corner is selected.
+- Mover Snap/Grid toggles now use a dedicated solid-white ON fill with a large black X; OFF uses the normal dark fill with a clear gray outline.
+- The ON fill is independent from Zen backdrop/theme refreshes so it cannot be repainted black.
+- Preserves the 0.9.124 Action Bar diagnostics and all 0.9.125 mover/grid work.
+
+ZenUI 0.9.125 - Mover snap anchor + high-contrast toggles
+- Grid snapping now snaps the mover's selected Lock Position corner to the visible grid intersection instead of snapping the mover's hidden center point.
+- Snap to grid and Show alignment grid use a strong inverted ON state: solid light box with a dark mark.
+- The selected Lock Position button also uses the same inverted high-contrast state.
+- Preserves the 0.9.124 /zenui abdebug action-bar diagnostics unchanged.
+
+ZenUI 0.9.124 - Action bar runtime diagnostics
+- Added /zenui abdebug for targeted ActionBars initialization, secure-button, mover, paging, and Blizzard-frame ownership diagnostics.
+- Diagnostic-only build: no action-bar architecture or visual behavior changed.
+
+ZenUI 0.9.123 - Visible-grid snap priority
+- When Snap to grid and Show alignment grid are both enabled, movers now snap to the visible grid intersections rather than smaller invisible Snap Size increments.
+- With the alignment grid hidden, the Snap Size slider keeps its original precision behavior.
+- Mover Controls now shows both the base Snap Size and the effective visible-grid spacing while grid-priority snapping is active.
+
+ZenUI 0.9.122 - ActionBars initialization and secure paging fix
+- fixed the 0.9.118 custom-bar initialization crash caused by calling ActionButton_UpdateHotkeys with the wrong Wrath 3.3.5 signature.
+- custom action buttons now use their Zen holder's secure actionpage, keeping display, drag/drop and clicks on the same action slot.
+- Bar 1 paging/bonus/vehicle pages are driven by a SecureHandlerStateTemplate state driver so combat transitions do not require insecure action-slot rewrites.
+- Blizzard bar frames are explicitly hidden before being moved under the Zen hider.
+- ActionBars initialization now fails loudly if a holder/button set is missing instead of leaving a half-active settings page.
+
+ZenUI 0.9.119 - Mover alignment grid
+- Added a Show alignment grid toggle to Mover Controls.
+- Draws readable snap-aligned screen grid lines only while mover mode is active.
+- Adds strong exact horizontal and vertical center lines for precise UI centering.
+- Grid visibility is saved per Zen profile and never intercepts mouse input.
+
+ZenUI 0.9.118 - Ebonhold custom action-bar architecture
+- replaces the six visible normal Blizzard action bars with Zen-owned ActionBarButtonTemplate buttons, following the robust ownership model used by ElvUI_Ebonhold.
+- moves Blizzard normal bar frames under a hidden parent instead of repeatedly fighting their anchors/artwork.
+- preserves existing WoW action-button keybinds through override click bindings.
+- Bar 1 follows normal paging, bonus/form pages, and vehicle page 11; Bars 2-6 remain fixed pages.
+- retains Zen pet, stance and shaman totem systems.
+- adds a defensive holder/button bootstrap so Action Bar movers cannot silently disappear.
+
+ZenUI 0.9.117 - Action bar rollback/recovery
+- rolled ActionBars ownership back to the stable native-parent model; keeps vehicle buttons without reparenting native action buttons.
+- synchronizes action-bar mover enabled states directly from settings.
+- hides MainMenuBar texture regions without hiding/reparenting the protected parent frame.
+
+ZenUI 0.9.116 - ElvUI-style action-bar ownership and profile finalization
+- adopts Blizzard's native secure action buttons into Zen-owned holders so MainMenuBar/MultiActionBar refreshes cannot reclaim their parent hierarchy.
+- explicitly preserves fixed multi-bar action pages after adoption and restores original parents/attributes if Zen Action Bars are disabled.
+- hard-mutes MainMenuBarArtFrame when Zen also owns the micro/bag controls, while keeping native scripts alive.
+- adds a one-shot delayed profile finalization pass so live profile switches match login ordering without permanent polling.
+- repairs legacy/imported action-bar tables that used string bar indexes.
+
+ZenUI 0.9.115 - Action bar hard-suppression fix
+- Hard-hides the stock MainMenuBar artwork regions while Zen owns the bars, repairs vehicle/player-art transitions, and makes default-true Action Bar booleans consistent with the options UI.
+
+ZenUI 0.9.114 - Action bar ownership recovery
+- detects Blizzard/Ebonhold action-bar artwork or anchors being restored after Zen has already laid out the UI.
+- event-driven hooks on native bar-update functions schedule a short repair verifier; there is no permanent polling.
+- repairs stock griffin/bar artwork immediately and restores protected button anchors out of combat.
+- adds a short login verifier for delayed Ebonhold bar initialization and a post-combat repair path.
+
+ZenUI 0.9.113 - Live profile switching fix
+- Reapplies enabled module settings after changing the active profile and restores all mover positions as the final step, matching login-time layout order.
+- Profile switches now update layout, scales, appearance and module settings immediately without requiring /reload.
+
+ZenUI 0.9.112 - Vehicle / ridden-instance UI recovery
+- adopt Wrath's native VehicleMenuBarActionButton1-6 into Zen Bar 1 so ridden encounters expose their vehicle abilities while retaining native ACTIONBUTTON keybind behavior.
+- pre-layout vehicle buttons outside combat so entering a vehicle during a boss fight does not require protected frame movement.
+- display the controlled vehicle's name, health, power and portrait in Zen's Player frame while UnitHasVehicleUI is active.
+- refresh vehicle action/state and unit data on native vehicle enter/exit and bonus-action events.
+
+ZenUI 0.9.111 - Friends online-status compatibility fix
+- Character Progression page keybinds now toggle the active page: pressing Mounts (for example Shift+P) again closes the whole Ebonhold progression window.
+- Register the discovered Ebonhold progression root with a Zen Escape controller so Esc closes the custom Character Progression window even when its native frame is unnamed.
+- Zen menu -> Character Progression is now a proper open/close toggle as well.
+- Different progression page shortcuts still switch pages without closing the window.
+- normalize friend online state using GetFriendInfo, GetNumFriends online count, and observed live unit tokens.
+- add a short two-second refresh burst only while the Friends panel opens to catch delayed Ebonhold friend-state responses.
+
+ZenUI 0.9.109 - Ebonhold progression parent-window fix
+- Character Progression page keybinds now reveal the discovered Ebonhold tab's real parent-frame hierarchy before clicking it.
+- Fixes Mounts/Transmogrify/Companions/Prestige changing page state while the combined Character Progression window remained hidden.
+- Does not use Blizzard Mount Journal APIs; shortcuts continue to target Ebonhold's custom Character Progression pages.
+
+ZenUI 0.9.108 - Character Progression standalone keybind fix
+- progression shortcuts now prime the Zen menu invisibly so Ebonhold's native Character Progression launcher is initialized even when the menu was closed.
+- shortcut-triggered launcher discovery bypasses the normal background-scan throttle, then the requested page is selected as before.
+
+ZenUI 0.9.107 - Character Progression keybind opening fix
+- Use the native Button:Click() pipeline for Ebonhold Character Progression controls instead of invoking only their raw OnClick script.
+- Open stable Echoes and Skill Tree frames directly.
+- Add a short one-shot retry for combined Character Progression tabs so Mounts, Transmogrify, Companions and Prestige are selected after Ebonhold finishes creating/showing the window.
+- No permanent polling is added; the retry stops as soon as the requested tab opens or after 1.25 seconds.
+
+ZenUI 0.9.106 - Character Progression page keybinds
+- Add real WoW binding actions for Echoes, Skill Tree, Transmogrify, Mounts, Companions and Prestige.
+- Add /zenui -> HUD & Combat -> Keybinds -> Character Progression Shortcuts with direct key capture and clear controls.
+- Add one-click Restore Mounts: Shift+P to recreate Ebonhold's familiar Mounts shortcut without forcing it on existing users.
+- Progression shortcuts initialize the native Ebonhold Character Progression window, then select the requested page by its stable visible tab label.
+- Bindings also appear under the ZenUI header in WoW's normal Key Bindings menu and are saved through Blizzard's binding system.
+
+ZenUI 0.9.105 - Saved profiles and import/export
+- Add /zenui -> System -> Profiles with named saved profiles, instant switching, save-current-as and safe deletion.
+- Add portable ZUI1: export strings for sharing a complete ZenUI layout and settings package.
+- Add safe parser-based import (no loadstring execution), profile-version checks and automatic unique names on conflicts.
+- Export/import includes appearance, scales, movers and module settings but excludes account history and character-specific Ebonhold talent-spec labels/icons.
+- Add /zenui profiles shortcut.
+
+ZenUI 0.9.104 - Character title selection
+- Add a Titles tab to the Zen Character panel listing earned character titles.
+- Click a title to apply it immediately; the active title is highlighted and No Title clears the displayed title.
+- Title changes refresh from KNOWN_TITLES_UPDATE / UNIT_NAME_UPDATE and the list supports mouse-wheel scrolling.
+
+ZenUI 0.9.103 - Socketing interaction restoration
+- Restore native SOCKETITEM modified-click behavior on Zen bag slots so Shift+Right Click opens gem socketing.
+- Skin the load-on-demand ItemSocketingFrame while preserving native socket/gem logic and socket-color indicators.
+
+- Merchant rows now show item/token currency icons and quantities instead of 0 copper for extended-cost vendors.
+- Mixed money + item costs render together; unavailable token quantities are highlighted.
+- Shift-click quantity affordability now accounts for required item tokens.
+- Right-click extended-cost purchases use Blizzard/Ebonhold native confirmation handling.
+
+ZenUI 0.9.101 - Stack Split interaction-layer fix
+- Force StackSplitFrame and all native amount controls onto TOOLTIP strata so Zen Merchant/Bank/Bags cannot cover their mouse targets.
+- Merchant quantity selector now opens beside the Merchant panel rather than inside the item-row area.
+- Hide the item tooltip when the quantity selector opens to avoid top-layer overlap.
+
+ZenUI 0.9.100 - Stack split layering and skin fix
+- Fully removes the native StackSplitFrame parchment/dialog texture regions while preserving native arrows, amount handling and split callbacks.
+- Forces StackSplitFrame above Zen replacement panels so Merchant/Bank/Bags quantity selectors cannot open behind their parent window.
+- Merchant reapplies the Zen StackSplit skin immediately after opening the quantity selector for private-server clients that reset its presentation.
+
+ZenUI 0.9.99 - Merchant quantity purchase
+- Restores stock Wrath Shift-click quantity purchasing on Zen Merchant items.
+- Uses the native StackSplitFrame (Zen-skinned by the D3 escape pass) and caps the selector by merchant max stack, available stock and current money where applicable.
+- Preserves normal modified item-link behavior: Shift-click still links an item when an active chat/edit target consumes the modified click.
+
+ZenUI 0.9.98 - Phase D Blizzard escape audit: transient-frame skin pass
+- Begin D3 with a presentation-only skin pass over the native StaticPopup family, preserving Blizzard/Ebonhold popup logic while removing stock dialog artwork.
+- StaticPopup1-4 now use Zen backgrounds, borders, accent lines, buttons, fonts and edit-box styling; this automatically covers many confirmations such as delete/reset/invite/summon/COD/quest/purchase dialogs.
+- Restyle the native StackSplitFrame while preserving its original split-stack scripts and arrow controls.
+- Restyle the native ReadyCheckFrame when available, preserving the stock Yes/No behavior.
+- All escape skins are idempotent and refresh on Zen appearance changes; no polling or replacement interaction logic was added.
+
+ZenUI 0.9.97 - Loot-roll chat filter
+- adds an opt-in Loot & Rolls setting to suppress group roll chatter (Need/Greed/Disenchant/Pass/roll-result lines) from CHAT_MSG_LOOT while preserving actual loot-received messages.
+- filter uses the client LOOT_ROLL_* localized strings with narrow Ebonhold fallbacks and adds no polling.
+
+ZenUI 0.9.96 - Mail send QoL
+- Auto-fill a blank Send Mail subject with the first attached item's name.
+- Keep Zen-generated subjects in sync when the first attachment changes, without overwriting player-written subjects.
+- Auto-complete recipient names from previously seen same-realm/same-faction characters as you type.
+
+ZenUI 0.9.95 - Auto-roll popup timing fix
+- keeps automatic loot-roll confirmation tied to the exact roll ID/item.
+- adds a short post-event cleanup window so Blizzard/Ebonhold confirmation dialogs created after ConfirmLootRoll are dismissed automatically.
+- manual loot-roll confirmations remain unchanged.
+
+ZenUI 0.9.94 - Auto-roll confirmation fix
+- automatic Greed/Disenchant rolls now automatically accept Wrath/Ebonhold loot-roll confirmation prompts.
+- confirmations are accepted only for roll IDs Zen selected automatically; manual roll confirmations remain unchanged.
+- supports the separate CONFIRM_DISENCHANT_ROLL path used by Wrath/Ebonhold and hides its transient stock popup.
+
+ZenUI 0.9.93 - Quest UI readability fix
+- Strips Blizzard/Ebonhold inline color escapes from quest titles before displaying them on Zen dark panels.
+- Quest interaction rows now use explicit Zen colors: status labels retain state colors while quest names use the normal bright text color.
+- Applies the same title sanitizing to the standalone Quest Log for consistency.
+
+ZenUI 0.9.92 - D2 Auto Loot Roller
+- Added opt-in automatic Pass, Greed and Disenchant rules by item quality.
+- All quality rules default to Manual; automatic Need is intentionally not offered.
+- Added optional Auto Pass for BoP items when the server marks Need unavailable.
+- Unavailable Greed/Disenchant rules safely fall back to Manual rather than another roll choice.
+- Added optional chat notification for automatic decisions.
+- Added /zenui > Interface > Loot & Rolls controls for D2 rules and reset-to-Manual.
+
+ZenUI 0.9.91 - Combat spellbook drag fix
+- removed Zen's unnecessary combat guard from Spellbook spell pickup/dragging.
+- spells can now be picked up from the Zen Spellbook during combat and dropped onto native Zen action-bar slots.
+- secure frame attribute/layout changes remain protected during combat.
+
+ZenUI 0.9.90 - Spell ID aura-path fix
+- Fixed player BuffFrame/DebuffFrame Spell IDs by hooking Wrath/Ebonhold GameTooltip:SetUnitAura, the path used by native aura buttons.
+- Aura ID lookup now prefers UnitAura and retains UnitBuff/UnitDebuff fallbacks for Zen target auras and private-server compatibility.
+- Added a native SetSpellBookItem tooltip hook so Spell IDs also appear on stock/Ebonhold spellbook tooltips.
+- Added duplicate-line protection when tooltip methods delegate internally.
+
+ZenUI 0.9.88 - Spell ID tooltips
+- Added Spell ID to Zen Spellbook mouseover tooltips.
+- Added Spell ID to buff/debuff tooltips through the native GameTooltip aura paths.
+- Aura Spell IDs work for Zen target auras and Blizzard/Ebonhold aura buttons without background polling.
+
+ZenUI 0.9.87 - Quest giver recovery
+- Reverted the unsafe automatic single-gossip-option forwarding added in 0.9.86.
+- Real quest lists now always take priority over custom/empty gossip suppression.
+- Quest ownership no longer relies on the broad QuestFrame container visibility, avoiding false positives on Ebonhold.
+- If Ebonhold reports quest entries but their titles cannot be decoded, Zen immediately restores the native GossipFrame instead of swallowing the interaction.
+- Preserves the Affix Forge/callboard bypass and all Loot UI work from 0.9.84.
+
+ZenUI 0.9.86 - Gossip / quest forwarding compatibility fix
+- Mirrors Blizzard Wrath auto-forward behavior for a single non-gossip option.
+- Prevents intermediate Ebonhold GOSSIP_SHOW events from opening Conversation when they should transition directly into a quest/service.
+- Filters blank gossip titles and falls back to the native frame instead of showing unusable empty rows when Ebonhold has not exposed valid labels.
+- Improves native gossip-button text extraction for Ebonhold compatibility.
+
+ZenUI 0.9.85 - Quest / gossip interaction ownership fix
+
+- Prevents late Ebonhold GOSSIP_SHOW events from overwriting an active Zen quest greeting/detail/progress/reward page.
+- Uses the hidden native GossipFrame's rendered buttons as the preferred compatibility source, preventing blank quest/gossip rows when Ebonhold briefly returns empty API titles.
+- Resets Gossip controls before data refresh so stale Continue/Accept buttons cannot survive a partial custom interaction update.
+- QUEST_ITEM_UPDATE now refreshes only an already-open quest page, matching Blizzard behavior instead of incorrectly forcing the completion view.
+- Keeps 0.9.84 Zen loot window and all prior Phase D fixes intact.
+
+ZenUI 0.9.84 - D1 native LootFrame presentation fix
+
+- Replaces the visible Blizzard corpse/container LootFrame with a Zen presentation while keeping the native LootFrame open invisibly underneath so CloseLoot, paging, master-loot and secure item handling remain authoritative.
+- Keeps native loot-slot clicks, modified-click item links, tooltips, paging, close behavior and master-loot selection.
+- Prevents the Blizzard parchment/portrait loot window from appearing alongside Zen loot-roll cards.
+- Zen loot window follows Blizzard's native loot position (including loot-under-mouse) and uses the existing Loot & Rolls scale.
+- No auto-roll behavior yet; D2 remains separate.
+
+ZenUI 0.9.83 - Phase D D1: Zen Loot Roll UI
+- Added a full Zen replacement for Wrath group-loot roll frames while retaining the native RollOnLoot and confirmation APIs.
+- Need, Greed, Disenchant and Pass availability is read directly from GetLootRollItemInfo, including native ineligible reasons.
+- Up to four simultaneous rolls stack cleanly from one movable Loot Rolls anchor, matching Wrath's stock four-frame capacity.
+- Added item-quality borders, count display, bind-on-pickup state, native loot-roll tooltips and modified-click item linking.
+- Added a lightweight shared countdown/status bar updater that runs only while one or more loot rolls are active.
+- Added /zenui -> Interface -> Loot & Rolls with enable, scale and section-specific mover controls.
+- Blizzard START_LOOT_ROLL presentation is suppressed only while Zen Loot Rolls are enabled; stock handling is restored if the module is disabled.
+- Auto-roll rules are intentionally deferred to D2 so the manual replacement can be tested independently first.
+
+ZenUI 0.9.82 - Guild footer and invite workflow cleanup
+- Rebuilt the Guild footer button spacing so Invite, Whisper, Promote, Demote and Remove no longer overlap.
+- Escape while the Invite player edit box has keyboard focus now closes the Zen Guild window cleanly.
+- Restored stock-Wrath-style Shift-click player-name capture: while Zen Guild is open, Chat Link-clicking a player name fills the Invite player box instead of falling through to /who.
+- Supports normal player and BNplayer hyperlink payloads while leaving ordinary chat hyperlink behavior unchanged whenever the Guild panel is not the active invite target.
+- Existing guild roster, whisper, promote/demote/remove permissions and all 0.9.81 chat-history behavior are unchanged.
+
+ZenUI 0.9.81 - Native 10-message chat history
+- Replaced Zen's custom OnEnterPressed / OnArrowPressed chat-history overrides with Wrath's native EditBox history system.
+- Zen chat edit boxes now use exactly 10 native history lines and SetAltArrowKeyMode(false), so Enter then plain Up/Down cycles sent chat reliably.
+- Keeps Blizzard/Ebonhold chat scripts untouched, avoiding the script-replacement conflict that caused 0.9.79 to remain unreliable.
+- Existing chat layout, performance hardening, quest-link compatibility and raid subgroup management are unchanged.
+
+ZenUI 0.9.80 - Raid subgroup management
+- Added a native Move Group control to the Zen Raid roster.
+- Select a raid member, click Move Group, then choose G1-G8; each target shows current occupancy and full groups are disabled.
+- Uses the Wrath SetRaidSubgroup API and only enables group moves for raid leaders/assistants outside combat.
+- Selection follows the member by name across roster reordering after a subgroup move.
+- Existing Ready Check, Whisper, Raid Info and Ebonhold Clear IDs behavior is unchanged.
+
+ZenUI 0.9.79 - Chat history arrow-key regression fix
+- Restored plain Up/Down cycling through previous Zen chat messages after the 0.9.76 chat-maintenance performance cleanup.
+- Keeps the optimized one-time edit-box hook setup while cheaply reasserting SetAltArrowKeyMode(false) when Blizzard/Ebonhold resets chat activation state.
+- No chat layout, quest-link, Activity Finder, or performance-hardening behavior changed.
+
+ZenUI 0.9.78 - Activity Finder quest-click bridge
+- Restored compatibility between Zen's custom Quest Book rows and ZenFamilyActivityFinder.
+- Shift-clicking a quest while the Activity Finder Create/Edit Listing window is open now routes through the companion addon's existing native QuestLogTitleButton_OnClick hook first.
+- Normal Zen Shift-click-to-chat behavior remains unchanged when the Activity Finder listing editor is not open.
+- No quest selection, tracking, layout, or performance behavior changed.
+
+ZenUI 0.9.77 - Quest chat-link compatibility
+- Restored Blizzard-style CHATLINK modified-click handling to Zen Quest Log rows.
+- Shift-clicking a non-header quest title now inserts GetQuestLink() into the active chat/edit link target via ChatEdit_InsertLink().
+- Uses IsModifiedClick("CHATLINK") so custom modifier bindings remain respected, with Shift as a compatibility fallback.
+- Normal click selection and quest-header expand/collapse behavior are unchanged.
+
+ZenUI 0.9.76
+- Performance hardening: minimap addon-button discovery no longer scans every UIParent child every 3 seconds.
+- Group unit-frame fallback polling is now change-driven and runs at a lower cadence instead of fully refreshing every visible party/raid frame five times per second.
+- Chat chrome maintenance reduced from 4 Hz to 1 Hz and skips already-hidden chrome / already-installed edit-box hooks.
+- Player power fallback polling reduced to 10 Hz and no longer allocates a signature string on every poll.
+
+ZenUI 0.9.75
+- Reorganized /zenui into an accordion-style grouped navigation tree.
+- Split Zen replacement settings into Core Panels, Service Panels, Progression and Interactions pages.
+- Added section-scoped mover views so each major category can be positioned without displaying unrelated anchors.
+- Kept Layout -> Move All Panels as the complete mover overview.
+- Added Inspect / Trainer / Conversation options and live scale handling to the Interactions page.
+
+ZenUI 0.9.74 - Ebonhold interaction timing guard
+- Gossip replacement now waits 0.12 seconds before opening, allowing Ebonhold custom interactions to take ownership first.
+- Added an explicit Affix Forge bypass so its custom forge UI does not spawn Zen Conversation.
+- Empty/anonymous GOSSIP_SHOW transport events no longer open a blank Zen Conversation window.
+- Pending gossip is cancelled when Merchant, Trainer or Quest interaction events take over, preventing stacked service windows.
+- Merchant itself remains driven directly by MERCHANT_SHOW; no delay was added to genuine vendor/repair sessions.
+
+ZenUI 0.9.73 - Shaman action-bar performance fix
+- Removed full StyleAllButtons/LayoutTotemBar work from high-frequency ACTIONBAR_UPDATE_STATE, ACTIONBAR_UPDATE_USABLE and ACTIONBAR_UPDATE_COOLDOWN events.
+- Totem state now refreshes through PLAYER_TOTEM_UPDATE plus a lightweight 5 Hz timer display update.
+- The MultiCast update hook and one-second safety check only repair the totem strip when its geometry has actually drifted.
+- Totem timer cells cache icon/text/alpha/border state so unchanged visual state is not rewritten every tick.
+- Removed the redundant second backdrop refresh from ActionBars:StyleButton().
+- Native secure totem buttons, casts, cooldowns and flyouts remain Blizzard/Ebonhold-controlled.
+
+ZenUI 0.9.63 - Equipped bag label clarity
+- Equipped bag slots now show Bag 1-4 and capacity on separate lines.
+
+ZenUI 0.9.63 - Phase D equipped-bag content highlighting
+
+- Hovering an equipped bag now highlights every occupied slot that belongs to that bag in the unified inventory.
+- Non-matching visible bag items fade while a bag is hovered, making the items that must be removed immediately obvious.
+- Hover highlighting clears as soon as the equipped-bag slot is left or the bag manager closes.
+- Empty equipped bags are identified as immediately removable.
+- If a bag container is hidden by the 1-4 visibility filters, the tooltip explains how to expose it instead of fading unrelated inventory.
+
+ZenUI 0.9.59 - Phase D bag click layer + quest multiline
+
+- Replaced ambiguous quest ? markers with explicit AVAILABLE / IN PROGRESS / READY TO TURN IN states.
+- Quest greeting and gossip lists now use the native completion flag to distinguish active incomplete quests from hand-in-ready quests.
+- Quest progress pages show IN PROGRESS until requirements are satisfied, then READY TO TURN IN.
+- Disabled progress action now reads Requirements Incomplete instead of looking like a usable completion button.
+- Quest Log uses the same state language and no longer relies on Unicode checkmarks that render incorrectly on this client.
+
+ZenUI 0.9.56 - Phase D inspect compatibility + interaction wheel paging
+
+- Inspect: the visible Zen Dressing Room button now delegates to a third-party button attached to Blizzard InspectFrame when available, preserving addon-specific dressing/outfit behavior.
+- Inspect: keeps the hidden native InspectFrame unit synchronized so Inspect addons can continue reading the inspected unit.
+- Trainer: mouse wheel now changes service pages while hovering the list or any service row.
+- Gossip / quest lists: mouse wheel now changes option/quest pages while hovering the list or any row. Quest detail text retains its normal smooth document scrolling.
+- No changes to the completed quest layout, unified bag grid, Bank/Void transfer system, Talents, PvP or Achievements.
+
+ZenUI 0.9.54 - Phase D quest readability + equipped bag management
+- Reworked the Zen quest interaction page into a larger 780x650 reading layout with larger NPC/title/body fonts.
+- Quest description/objective/progress text now flows through one clipped scroll body, eliminating cross-over caused by unreliable per-FontString height reporting on custom 3.3.5 clients.
+- Enlarged quest reward controls and kept Accept / Complete / reward selection on a fixed footer.
+- Added an EQUIPPED BAGS pop-out to the unified Bags window.
+- The bag manager shows the fixed Backpack plus equipped bag slots 1-4, slot capacity and native bag tooltips.
+- Bag slots support pick-up/removal and drag/drop equip or replacement using the native bag equipment APIs; changes are blocked during combat.
+- The BP/1/2/3/4/K buttons remain visibility filters only, keeping bag display and bag equipment as separate concepts.
+
+ZenUI 0.9.52 - Phase D quest interaction layout hardening
+- Rebuilt quest detail/progress/completion presentation inside the Zen Conversation frame.
+- Quest descriptions and objectives now live in a clipped mouse-wheel ScrollFrame instead of spilling into the option list.
+- Added dedicated QUEST DESCRIPTION / OBJECTIVES / QUEST PROGRESS / QUEST COMPLETE sections.
+- Quest reward choices now occupy their own fixed reward panel with item counts and native tooltips.
+- Gossip and quest greeting lists retain the compact conversation-list layout.
+- Native Accept / Complete Quest / reward selection behavior is unchanged.
+
+ZenUI 0.9.51 - Phase D interaction hardening pass
+- Added Zen Inspect replacement using the native inspected-unit session, model, equipment slots, tooltips and average item level.
+- Added Zen Trainer replacement with service list, requirements, costs, descriptions and native training actions.
+- Added Zen Gossip / NPC conversation replacement with scrollable quest and service choices.
+- Added Zen quest-giver interaction views for greeting, detail, progress and reward/turn-in states.
+- Native NPC frames remain logically open but visually suppressed so server interactions are preserved.
+- Added secure combat keybinding toggles for the unified Bags (B) and Spellbook bindings.
+- Zen menu entries are no longer protected frames, allowing the menu itself to be rebuilt/opened during combat.
+- Spellbook refresh is now read-only/combat-safe; protected spell pickup remains guarded.
+- Retains the Phase D /zenui doctor runtime health system from 0.9.50.
+
+ZenUI 0.9.47 - Achievement search
+- Added a global Achievement search bar.
+- Search matches achievement names, descriptions, rewards, and criteria text across all categories.
+- Search results reuse the normal achievement cards, details, tracking, linking, rewards, and progress UI.
+- Statistics keeps its existing category browser; the search bar is shown only on the Achievements tab.
+
+ZenUI 0.9.46 - Interactive achievement criteria navigation
+- Nested/meta achievement criteria can be hovered for full details and clicked to open the linked achievement.
+- Shift-click on linked criteria inserts the child achievement into chat.
+- Detail Back navigation returns to the parent meta-achievement before returning to the category list.
+- Non-achievement criteria show their full native objective/progress on hover.
+
+ZenUI 0.9.45 - Achievement criteria details / completion clarity
+- Completed achievement criteria now use a real ReadyCheck tick texture plus green text instead of the unsupported Unicode checkmark that rendered as a question mark on the Wrath client.
+- Normal left-click on an achievement card opens a full criteria details view with mouse-wheel / arrow paging, so large meta-achievements can show their entire criteria list.
+- Achievement tooltips now advertise the full-details viewer when criteria are truncated.
+- Existing tracking, linking, progress bars, rewards and category navigation remain unchanged.
+
+ZenUI 0.9.44 - Achievement criteria clarity / Game Menu panel fix
+- Game Menu now opens/closes GameMenuFrame directly instead of invoking ToggleGameMenu's protected Escape-style cleanup path or a non-working hidden micro-button proxy.
+- Achievement progress bars use the simpler "Complete X / Y" wording.
+- Multi-criterion completion flags are normalized for boolean and 0/1 custom-client returns.
+- Boolean/list achievement criteria no longer append the meaningless quantityString "0"; real numeric criteria still show their current/required progress.
+- Keeps the larger three-card Achievement layout, collapsed-by-default category tree, reward lines and reserved navigation footer from 0.9.43.
+
+ZenUI 0.9.33 - Character Progression standalone launcher fix
+
+0.9.33
+- Fixed a MicroMenu discovery crash caused by indexing function-valued globals as frames.
+- Character Progression discovery now scans the separate visible UI hierarchy and identifies the launcher by its native tooltip, rather than requiring a Blizzard micro-bar relationship.
+- The Ebonhold launcher is now suppressed independently when Zen hides Blizzard micro/bag controls.
+- Character Progression now explicitly clicks the Echoes tab; simply showing the shared frame is no longer treated as success.
+- Extended delayed discovery to cover Ebonhold modules that create the standalone launcher late.
+
+ZenUI 0.9.32 - Character Progression launcher integration
+
+0.9.32 - Character Progression parity
+- Renamed the Zen Ebonhold menu action to Character Progression.
+- Zen now mirrors the native launcher behavior, preferring the original click and opening Echoes before Skill Tree as fallback.
+- Expanded Ebonhold launcher discovery to unnamed/custom action-bar buttons using parent/anchor context and the native Character Progression tooltip.
+- Added a short post-login discovery retry so late-created Ebonhold controls are still suppressed when Blizzard micro controls are hidden.
+
+0.9.32 - Ebonhold menu integration
+- Added Project Ebonhold's custom micro-button action to the Zen launcher menu.
+- Dynamically discovers the Ebonhold micro control across client revisions instead of depending on one private global name.
+- Zen delegates to the original native Ebonhold button click first, preserving the server addon's exact behavior.
+- Added a skillTreeFrame fallback for Ebonhold's custom progression UI when no native micro button can be resolved.
+- The original Ebonhold micro button is suppressed/restored together with the Blizzard micro bar according to Zen menu visibility settings.
+- Talents, PvP, Experience/Reputation, Bank/Void and Bags are unchanged from the stable 0.9.20 baseline.
+
+ZenUI 0.9.20 - Phase C Experience / Reputation bars
+
+0.9.20 - Experience / Reputation bars
+- Added Zen-owned Experience and watched-Reputation bars backed by native Wrath UnitXP / GetWatchedFactionInfo data.
+- XP bar shows current progress and percentage, hides automatically at max level, displays rested-XP overflow, and reports XP-disabled state when the client exposes it.
+- Reputation bar follows the faction tracked from Zen Character > Reputation, uses standing colours, and shows current/remaining progress.
+- Added detailed mouseover tooltips for XP, rested XP and reputation progress.
+- Suppresses the stock MainMenuExpBar / max-level / ExhaustionTick and ReputationWatchBar only while the corresponding Zen replacement is enabled; native bars are restored when disabled.
+- Added independent ExperienceBar and ReputationBar movers plus a shared /zenui Phase C scale and individual enable toggles.
+- Database schema 28 adds status-bar defaults without changing completed Talents/PvP behavior.
+
+ZenUI 0.9.10 - Reset specialization icon cleanup
+
+0.9.10 - Phase C PvP first pass
+- Added a full Zen PvP replacement with Honor, Battlegrounds and Arena tabs.
+- Honor tab shows live Honor/Arena currencies, today/yesterday/lifetime PvP stats and Arena season state.
+- Battlegrounds tab lists available native Wrath queues, requests server descriptions, supports solo/group queue joins, displays queue state and exposes Enter/Leave actions when the client provides AcceptBattlefieldPort.
+- Arena tab shows 2v2/3v3/5v5 teams, ratings, weekly/season records and native roster details.
+- TogglePVPFrame/PvP micro-button routing now opens Zen PvP when enabled.
+- Added /zenui Phase C PvP enable toggle, independent PvP scale and ZenPvP mover.
+- Database schema 27 adds PvP defaults without changing the completed Talents implementation.
+- Resetting the active Ebonhold talent specialization to zero points now replaces the cached dominant-tree icon with the neutral/default class talent-tree icon.
+- The reset/default icon is persisted per character/spec, so switching away and back cannot restore the stale pre-reset icon.
+- Custom specialization names are preserved.
+
+ZenUI 0.9.04 - Named Ebonhold specs + tree icons
+- Added per-character custom display names for Ebonhold specialization slots through a new Rename Spec control in the Talents sidebar; dropdown rows can also be right-clicked to rename a specific slot.
+- Blank/default names fall back to Primary / Secondary / Third / Fourth / Fifth Specialization; renaming never changes the underlying Ebonhold spec index.
+- Added a small dominant-tree icon to every specialization dropdown row and the selected-spec button.
+- Spec icons are learned from the talent tree with the most spent points whenever that spec is active, then cached per character so inactive specs remain visually identifiable across sessions.
+- Added switch-state protection so the old spec's icon cannot be cached under a newly selected Ebonhold slot before its talent data finishes loading.
+- Talent learning, switching, reset behavior and the existing Phase-B storage/bag code are unchanged.
+
+ZenUI 0.9.03 - Ebonhold spec state + true talent reset
+- Fixed the Ebonhold specialization selector staying on Primary after a successful spec switch. Zen's confirmed/cached 1-5 spec index is now authoritative instead of stale guessed ProjectEbonhold fields.
+- Zen now post-wraps ProjectEbonhold.SpecService.ApplySpec and ProjectEbonhold.Spec.UpdateSelectedSpec, plus listens for SEND_PLAYER_SPEC_INDEX, so both Zen-initiated and native Ebonhold spec switches update the selector.
+- Fixed Reset Talents accidentally matching Blizzard's PlayerTalentFrameResetButton, which only clears Talent Preview points and does not wipe learned talents.
+- Reset Talents now excludes the Blizzard preview-reset control, invisibly bootstraps the native Ebonhold talent controls when needed, then clicks the real Reset Talents handler so Ebonhold keeps ownership of confirmation/cost/server behavior.
+- Retains the 0.9.02 Chat edit-box compatibility fix and all working talent-tree behavior.
+ZenUI 0.9.01 - Phase C Talents: first Ebonhold specialization attempt
+- Removed Zen's artificial two-spec cap; Project Ebonhold can now expose all five persistent talent specialization slots.
+- Added a compact Zen dropdown for Primary, Secondary, Third, Fourth and Fifth Specialization.
+- Added Reset Talents. Zen delegates to Ebonhold's native talent reset control first, preserving its confirmation/cost/server rules, with ConfirmTalentWipe as a plain-Wrath fallback.
+- Keeps the hidden Blizzard talent frame synchronized with Zen's selected specialization so native reset behavior targets the same group.
+
+ZenUI 0.9.00 - Phase C begins: Talents
+- Added a true Zen-owned Talents window backed by native Wrath 3.3.5 talent APIs.
+- Added Primary / Secondary specialization selection and active-spec activation.
+- Added all three class talent trees with tree points, talent ranks, availability states and prerequisite branch lines.
+- Added native GameTooltip:SetTalent tooltips and talent chat-link handling.
+- Added direct LearnTalent spending plus Blizzard Talent Preview add/remove, Apply Preview and Reset Preview controls.
+- Added unspent point/status panel and tree scrolling for tall/custom talent layouts.
+- Added /zenui > Zen Panels > Phase C Talents enable + independent scale and ZenTalents mover.
+- Kept Wrath Glyphs and Hunter pet-talents on their native secondary UI path for this first player-talent replacement pass, so those workflows are not accidentally suppressed.
+- Phase C roadmap updated: Talents, PvP, Experience/Reputation bars, Ebonhold micro-button integration, Achievements/extras. Raid Finder removed because the Raids window is already implemented.
+
+ZenUI 0.8.81 - Secure native bag click proxy
+- Fixed protected Ebonhold consumables (including Soul Ash Crates) doing nothing after the 0.8.80 taint workaround.
+- Ordinary Zen bag clicks now securely delegate to Blizzard's native ContainerFrameItemButtonTemplate for the exact bag/slot.
+- Preserves native merchant/modified-click behavior instead of approximating item use with a generic secure item action.
+- The configured Void quick-drop modifier is suppressed only while the Zen bank session is open, then handled by the existing ExtBank route.
+- Bank/Void transfer logic itself is unchanged.
+
+ZenUI 0.8.81 - Native count-field collision hardening
+- Custom Phase-B item buttons no longer use the generic `count` field for their FontString.
+- All Zen visual stack counts now use the dedicated `RUICountText` field only.
+- Prevents native/Ebonhold use-item and stack-split code from turning button.count into a number and breaking BAG_UPDATE / ITEM_LOCK_CHANGED refreshes.
+- No Bank/Void transfer behavior changed.
+
+ZenUI 0.8.81 - Stack count refresh / Void bag manager fix
+
+- Fix a StackSplitFrame naming collision that overwrote the Bank item button count FontString with a number after Shift+Left-click.
+- BAG_UPDATE and ITEM_LOCK_CHANGED can no longer fail with "attempt to index field count (a number value)" after splitting a stack.
+- Bank, bank-bag and Void Storage bag-manager refreshes now use a dedicated RUICountText reference defensively.
+- This restores refresh/event handling while installing bags into newly purchased Ebonhold Void Storage bag positions.
+- Keep 0.8.77 StackSplitFrame layering, Bank/Void transfers and tooltip behavior unchanged.
+
+ZenUI 0.8.77 - Base Bank tooltip source fix
+
+
+- Bank: force the native StackSplitFrame above the Zen Bank so Shift+Left-click stack splitting remains visible and interactive.
+0.8.77
+- Fix the apparent top-two-row tooltip slicing at the data-source level rather than by moving the tooltip.
+- The first 28 cells are Wrath's BANK_CONTAINER and occupy rows 1-2 in Zen's 16-column grid. Wrath 3.3.x exposes those cells as player inventory slots, not a normal bag.
+- Base-bank tooltips now use SetInventoryItem("player", BankButtonIDToInvSlotID(slot, nil)); normal bank bags continue to use SetBagItem.
+- Remove the row-specific ANCHOR_BOTTOM workaround and return Bank tooltips to conventional left/right placement.
+- Keep the stable Void/Bank transfer bridge and footer behavior unchanged.
+
+0.8.73
+- Force the first two visible Bank/Void grid rows to anchor item tooltips below the hovered slot using the actual grid row, rather than unreliable scaled screen coordinates.
+- Re-apply the Bank tooltip anchor after tooltip contents are built so SetBagItem/SetHyperlink cannot leave a tall tooltip clipped above the screen.
+- Suppress movement-helper tooltips on empty Extended Bank cells.
+- Wait for the temporary carried-bag slot to report an unlocked item before continuing Void -> Bank / Void -> Bag bridge stage two.
+- Require one additional stable polling interval before touching a newly withdrawn Void item, preventing Ebonhold's transient item lock from being repeatedly picked up and leaving the item unusable in Bags.
+
+ZenUI 0.8.70 - Bidirectional Bank/Void transfers and purchase safety
+
+0.8.70
+- Add safe Void -> Bank drag/drop through a temporary carried-bag slot, including occupied-destination swap handling.
+- Keep Bank/Void state active while the asynchronous bridge completes.
+- Fix top-row Bank/Void item tooltips by anchoring tall tooltips below the slot instead of letting them grow off-screen.
+- Add explicit Yes/No confirmation before purchasing any Extended Bank slot.
+- Add explicit Yes/No confirmation before purchasing a normal Bank bag slot.
+
+ZenUI 0.8.70 - Bank/Void transfer persistence
+
+0.8.70
+- Preserve the last full decoded ExtBank snapshot when Ebonhold sends a tiny move acknowledgement, preventing V/manager from collapsing after deposits or withdrawals.
+- Request a fresh full ExtBank state after every successful move.
+- Allow Bank -> Void drag/drop through one temporary free carried-bag slot, matching Ebonhold's live-inventory-only deposit routing without exposing a two-step workflow.
+
+ZenUI 0.8.70 - Native Ebonhold ExtBank source integration
+
+0.8.70
+- Extracted Project Ebonhold's shipped modules/extBank/extBank.lua from patch-4.MPQ and replaced all guessed Void Storage limits/prices with the client's authoritative values.
+- Correct Extended Bank maximum is 70 bag positions (7 columns x 10 rows), not 80.
+- Exact unlock progression is 50g, 125g, 250g, 500g, 1,250g, 2,500g, 5,000g, then 10,000g for every later slot through 70.
+- Flattened Void Storage items are now interactive using Ebonhold's documented coordinates: right-click withdraws to inventory, drag inventory items onto a Void slot to deposit, and left-click-select then click another Void slot moves items internally.
+- Void Storage Bags manager now supports dragging bags into purchased positions and right-clicking installed bags to unequip them back to inventory.
+- Manager grid now matches Ebonhold's native 7 x 10 layout and displays exact prices for every locked position.
+
+ZenUI 0.8.66 - Character fixed full-body auto-fit
+
+0.8.66
+- Removed Character mouse-wheel zoom for now.
+- Character model now uses deterministic race-specific full-body scaling on every open/reload.
+- Briefly reasserts the fit after Ebonhold model refreshes, then stops touching the camera.
+
+ZenUI 0.8.66 - Panel lifecycle, Character zoom and Bank settings
+
+0.8.66
+- Full-size Zen replacement panels now share one exclusive panel coordinator; opening Character, Dungeon Finder, Guild, Bank, Config, etc. closes the previous full-size Zen window instead of stacking. Bags remain independent.
+- Character model wheel now uses Wrath UIParent.lua Model_OnMouseWheel / SetPortraitZoom directly with a deterministic zero-zoom reset on reopen; custom camera-distance/model-scale feedback paths are removed.
+- /zenui adds a dedicated Bank & Void page with Bank enable/scale, BNK + bank-bag visibility defaults, ExtBank decoder status, next known unlock price and native move-trace count.
+- Guild offline-member preference is now visible in /zenui Zen Panels.
+
+ZenUI 0.8.66 - ExtBank native move trace and current-price capture
+
+0.8.66
+- Added a transparent ExtBankMove trace wrapper so Ebonhold native Void Storage can teach Zen its exact transfer coordinates without guessing.
+- Added /zenui extmove [clear] diagnostics; traces persist in ZenUIDB.global.extBankDebug.moveTrace.
+- Added the observed 10,000g slot-nine purchase price fallback and made manager price labels more readable.
+- Retains 0.8.63 Bank search and normal-Bags/Bank data separation fixes.
+
+0.8.66
+- Normal Zen Bags no longer imports bank/bank-bag contents merely because the native BankFrame is still logically shown behind Zen's suppressed Bank replacement.
+- Added a Bank/Void search field; searches normal Bank and decoded Ebonhold Extended Bank items together and dims non-matches.
+- Void Storage bag manager now shows a compact price line on every locked position: known captured prices are displayed, unknown future prices show ? instead of guessed values.
+- Learned next-slot prices are persisted per target slot in ZenUIDB.global.extBankDebug.slotUnlockCosts.
+- Added /zenui extprice: a one-shot native Void Storage diagnostic that records visible purchase UI/money data plus bounded numeric upvalue tables, allowing the real Ebonhold price progression to be captured without global polling/scanning.
+
+ZenUI 0.8.66 - Void Storage per-slot pricing
+
+0.8.66
+- Removed the permanent Extended Bank slot strip from the main Bank footer. V now remains exclusively a show/hide filter for the flattened Void Storage contents.
+- Added a dedicated Void Storage Bags button that opens a Zen-styled 8 x 10 management panel for all 80 Ebonhold Extended Bank bag positions.
+- The management panel distinguishes installed bags, purchased-but-empty positions, the next purchasable position and later locked positions without cluttering the unified Bank.
+- Moved Extended Bank unlock pricing/purchases into the management panel; the next slot and live/observed price are refreshed from every new ExtBank packet.
+- Added a Refresh control in the manager and kept the panel independent from V visibility, so capacity can be managed without showing Void contents in the main grid.
+- Reclaimed the old slot-strip space for the unified Bank grid and increased the visible grid from 11 to 12 rows.
+
+ZenUI 0.8.59 - Confirmed 80-slot Extended Bank capacity
+
+0.8.59
+- Confirmed from Ebonhold's native Void Storage window that Extended Bank supports 80 purchasable positions (8 columns x 10 rows). Zen now reports and navigates against that real maximum instead of the previous 64-position safety ceiling.
+- The existing 12-position Extended Bank strip remains a sliding window, so the Bank footer stays compact while unlocks can progress all the way through slot 80.
+- Added a second observed native unlock-price fallback: 5,000 gold when five Extended Bank positions are unlocked. The existing 1,250 gold fallback for the four-slot state remains.
+- Live Ebonhold runtime price/max data still takes priority over observed fallbacks whenever it is available.
+- /zenui extbank and SavedVariables now identify the 80-slot fallback source as the native 8x10 Void Storage grid.
+
+ZenUI 0.8.58 - Extended Bank dynamic unlock pricing + server-limit detection
+
+0.8.58
+- Removed the hard-coded ten-position Extended Bank limit. Zen now performs a bounded inspection of Ebonhold's already-loaded ExtBank Lua closures/UI objects to discover the real configured maximum at runtime, with no global-table scan.
+- Extended Bank slot status now reports the detected server/client maximum when exposed; if Ebonhold does not expose it, Zen says the maximum is server-controlled instead of inventing a value.
+- The Extended Bank slot strip is now a sliding 12-position window, so unlock counts above ten remain usable without stretching or overlapping the Bank footer.
+- Expanded the packet/UI safety ceiling to 64 Extended Bank positions while keeping the actual maximum runtime-driven.
+- Improved next-slot price discovery: Zen now reads named cost/price tables, ExtBank closure upvalues, purchase frame text, STATIC money-frame values and denomination buttons. This is re-evaluated after every new ExtBank server packet, so purchasing one slot can reveal the next slot's updated price immediately.
+- Added bounded ExtBank runtime metadata diagnostics (detected max/price sources) to SavedVariables and /zenui extbank for follow-up verification.
+- Corrected the displayed core/config version to match the packaged release.
+
+ZenUI 0.8.57 - Extended Bank unlock strip + ALL container toggle
+
+0.8.57
+- Added an ALL master Bank filter. If every container is active it hides BNK, bank bags 1-7 and V together; if any are hidden it activates all of them in one click.
+- Added a visible ten-position Ebonhold Extended Bank slot strip when V is shown. Purchased storage bags use their decoded bag icons, the next purchasable slot is highlighted, and later slots remain visibly locked.
+- Added direct ExtBankUnlock purchase controls. The next Extended Bank slot can be purchased either from its locked slot placeholder or the dedicated Buy Ext Slot button.
+- Zen reads the native Ebonhold purchase price when the client exposes it through a known button/upvalue. For the captured four-slot state, it falls back to the observed native price of 1,250 gold.
+- Extended Bank slot status and purchase controls remain hidden while V is off, preserving the normal Bank-first layout.
+- Increased Bank panel height only enough to add the Extended Bank slot strip without reducing the existing 11 visible storage rows.
+
+ZenUI 0.8.56 - Direct Ebonhold Extended Bank decoder
+
+0.8.56
+- Added a direct decoder for Project Ebonhold's captured Extended Bank packet; Zen no longer waits for a separate native Void Storage UI/parser before it can display the storage.
+- The captured packet format is validated before use and its Extended Bank bags are flattened into one continuous V section in the Zen Bank.
+- V remains hidden by default on every banker visit; clicking V requests a fresh ExtBank snapshot and then shows the decoded storage.
+- The supplied 1494-byte capture decodes to 4 Extended Bank bags, 68 total slots and 63 stored item records.
+- Extended Bank item icons, stack counts, item tooltips and modified-click item links are populated directly from the decoded packet.
+- Removed the V click dependency on Bagnon/native-UI bootstrap paths; no scans or polling are used.
+- ExtBank moves are not guessed in this build: display is decoded directly while transfer coordinates remain unchanged until verified against Ebonhold's move protocol.
+
+ZenUI 0.8.55 - Bank lifecycle, Void visibility and Guild preference
+
+0.8.55
+- Void Storage now starts hidden on every banker visit and is only requested/shown after clicking V.
+- Added a deterministic optional Bagnon_VoidStorage compatibility bootstrap when that installed LoadOnDemand module is available; no global scans or polling are reintroduced.
+- Reworked the Bank footer so the 1-7 visibility toggles align exactly above their corresponding physical bank-bag icons; each icon also carries its bag number.
+- Fixed Bank lifecycle cleanup: replacing the Bank with Character/another Zen panel, pressing Escape, or otherwise hiding the Bank now closes the underlying banker session and clears ExtBank routing, allowing the Bank to reopen normally.
+- Bank close events now always hide the unified Bank instead of leaving a stale Void-only panel/state behind.
+- Guild Show offline preference is now saved in the Zen profile and restored exactly as the user last set it.
+
+ZenUI 0.8.54 - Bank Void safety + bag labels
+
+0.8.54
+- Removed the unsafe global-frame discovery sweep from Ebonhold Void Storage handling. The old scan could treat functions as frames during /reload and caused the reported BlizzardPhaseB.lua crash.
+- Removed the repeated 0.10s Void discovery polling loop and the heavyweight native-UI search from the V toggle, eliminating the one-second hitch when Void Storage is toggled.
+- V now toggles immediately. Zen only checks a small fixed set of known native launcher names and otherwise sends a single lightweight ExtBank request.
+- Native Void slot discovery is now deterministic and limited to known slot prefixes, including BagnonVaultItemSlot, with strict frame-type checks.
+- Added visible 1-7 labels directly above the physical bank-bag icons so each equipped bank bag is clearly matched to its container number.
+- ExtBank raw packet capture is retained for protocol work; no global-table snapshots are performed on packet receipt.
+
+ZenUI 0.8.53 - Merchant compact layout polish
+
+0.8.53
+- Reduced the Zen Merchant panel footprint while increasing item readability.
+- Merchant pages now show 7 larger rows with 34px item slots, 13px item names and 12px prices.
+- Moved vendor text to the upper-right so it no longer competes with the Buy / Buyback tabs.
+- Separated the interaction hint from Repair / View on Character / paging controls so footer text cannot overlap buttons or page text.
+- Preserved the 0.8.51 interaction model: View on Character defaults on, left click selects/previews, and right click buys.
+
+ZenUI 0.8.52 - Native Void Storage launcher bridge
+
+0.8.52
+- Void Storage now follows Ebonhold's normal native Bank -> Void Storage initialization path before requesting ExtBank data instead of calling ExtBankOpen in isolation.
+- Zen discovers and invokes the native Void Storage launcher button (including text-based fallback discovery), then immediately re-hooks any ExtBank_OnPacket decoder the launcher loads.
+- Added support for native VoidStorage/ExtBank LoadUI entry points and a short post-open discovery window for LoadOnDemand slot buttons/APIs created asynchronously.
+- Once Ebonhold exposes either its Void item API or native storage slot buttons, Zen hides the stock Void window and flattens all discovered Void slots into the existing unified Bank grid.
+- ExtBank transport capture and the normal-bank deposit safety reset remain in place.
+
+ZenUI 0.8.51 - Merchant selection-first controls
+
+0.8.51
+- View on Character now starts enabled whenever a merchant opens.
+- Left-click never purchases merchant or buyback items. It only selects the row; in Buy mode, selection also previews the item when View on Character is enabled.
+- Right-click is now the only ordinary purchase action for both merchant and buyback rows/icons.
+- Selected merchant rows receive the Zen accent border so selection is visually explicit.
+- Updated Merchant hints/tooltips to make the left-click select / right-click buy behavior clear.
+
+ZenUI 0.8.50 - Bank open crash hotfix
+
+0.8.50
+- Fixed a BANKFRAME_OPENED crash in the native Void/ExtBank discovery fallback. The compatibility scan walks _G, which also contains ordinary Lua functions and scalar values; Zen now verifies an object is frame-like before reading GetObjectType/GetName/GetID from it.
+- Bank opening no longer aborts when an unrelated global function is encountered during Ebonhold Void Storage discovery.
+- No Merchant behavior was changed from 0.8.49.
+
+ZenUI 0.8.49 - Merchant one-click buying + character preview toggle
+
+0.8.49
+- Merchant purchase rows and their item icons now use the same direct action: a normal click buys one merchant purchase immediately instead of requiring a separate selection/right-click workflow.
+- Added a View on Character toggle to Merchant. When enabled, clicking a purchasable merchant item calls the native DressUpItemLink preview instead of buying it; when disabled, the same click purchases immediately.
+- View on Character is visually highlighted while active and is disabled on the Buyback tab. Modified item clicks remain available for native chat-link/dressing-room behavior.
+- Merchant item icons now share row tooltips and mouse-wheel page navigation so the icon layer no longer feels like a separate/non-responsive control.
+
+ZenUI 0.8.48 - Void UI bridge + trade money + native bag item actions
+
+0.8.48
+- Character Equipment now resets with PlayerModel camera 1 plus a fixed camera-distance scale on every open. Model geometry is no longer used as the wheel-zoom axis, and hidden-frame state is never used to infer the next default view.
+- Character mouse-wheel zoom changes only SetCamDistanceScale until the window closes; there is no multi-frame camera correction loop and no PortraitZoom feedback path.
+- Zen Bank now attempts to load Ebonhold's client-shipped/load-on-demand Void Storage UI/parser before requesting ExtBank data, then chains its ExtBank_OnPacket decoder rather than consuming only the raw server hex packet.
+- When the native Void item API is exposed, both 80-slot tabs are flattened into the same continuous Zen bank grid. If Ebonhold keeps the API private, Zen can mirror discovered native Void/ExtBank storage buttons as a fallback instead of showing a separate Void window.
+- Native Void purchase/unlock controls are detected and proxied into the Zen Bank footer when available.
+- Added gold/silver/copper money-offer controls to the Zen Trade replacement, backed by SetTradeMoney/GetPlayerTradeMoney/GetTargetTradeMoney and the native trade money events.
+- Unified Bags no longer replaces ContainerFrameItemButtonTemplate's OnClick handler. Recipe/pattern learning, consumables, quest items, socketing and other native right-click item actions now stay on Blizzard's original secure item-use path; Zen Mail continues to use SetSendMailShowing for native right-click attachments.
+
+ZenUI 0.8.47 - Stable Character reopen + real Ebonhold ExtBank bridge
+
+0.8.47
+- Character no longer calls ClearModel/SetUnit on every ordinary reopen. The live model is reset to Zen's default zoom/rotation before close and reused on show, preventing Ebonhold's SetUnit camera recalculation from inverting the apparent zoom between sessions.
+- SetUnit is now reserved for first model initialization and actual equipment refreshes, with only a single one-frame scale correction after those rare reloads. Mouse-wheel input cancels that correction immediately.
+- Corrected 0.8.46's Void Storage assumption: Bagnon_VoidStorage is not evidence that this Ebonhold client exposes Blizzard GetVoidItemInfo/ClickVoidStorageSlot APIs.
+- Zen now detects Project Ebonhold's real native Extended Bank transport: ExtBankOpen, ExtBankMove, ExtBankUnlock and ExtBankSetActive, with server data delivered to ExtBank_OnPacket.
+- Opening the Zen Bank safely requests Extended Bank state and immediately calls ExtBankSetActive(0), so ordinary native-bank deposits are not suppressed while Zen is still mapping the custom storage protocol.
+- ExtBank_OnPacket is captured safely (while preserving/chaining any existing callback) into ZenUIDB.global.extBankDebug. /zenui extbank shows transport/capture status and /zenui extbank request can request another state packet.
+- Bank V tooltip now reports actual Ebonhold Extended Bank transport/capture state instead of incorrectly saying the Void Storage API is unavailable.
+- Bank container-toggle footer wording now matches the unified Bags window: click a container to show/hide it.
+
+ZenUI 0.8.46 - Character zoom reset + Bank container filters / Void bridge
+
+0.8.46
+- Character zoom no longer uses PortraitZoom/CamDistanceScale or continuously reapplies camera values from OnUpdate. Reopening Character now discards the previous zoom, reloads the player model, restores the race-aware default model scale once, and mouse-wheel input directly controls model scale without a camera feedback loop.
+- Added compact BNK / 1-7 / V storage toggles to the Zen Bank, matching the unified Bags window pattern. Each bank container can be included or excluded while the visible item area remains one continuous grid.
+- Integrated the Ebonhold backported Void Storage Lua API discovered in the supplied AddOns package (the Interface 30300 Bagnon_VoidStorage module uses CanUseVoidStorage, GetVoidItemInfo, ClickVoidStorageSlot, ExecuteVoidTransfer and VOID_STORAGE_* events).
+- When Ebonhold Void Storage is open/ready and unlocked, both 80-slot Void tabs are appended to Zen's unified Bank grid as 160 additional slots. Void item tooltips, cursor interaction, right-click withdrawal staging and the native pending-transfer cost/execute flow are bridged into the Zen panel.
+- Bank bag purchase/equip controls remain available below the unified grid; the Bank panel is slightly taller to make room for the new container-filter row without shrinking the item area.
+
+ZenUI 0.8.45 - Native Character camera + larger unified Bank
+
+0.8.45
+- Character Equipment zoom now uses the native 3.3.5 PlayerModel PortraitZoom/CamDistance camera controls instead of SetModelScale.
+- Character camera attributes are normalized before ClearModel/SetUnit and every panel open resets to one deterministic midpoint, preventing hidden-frame carry-over, inverted-feeling zoom and reopen lockups.
+- Equipment-driven model reloads use the same camera reset path while ordinary stat refreshes no longer disturb the model.
+- Enlarged unified Bank item cells and bank-bag equipment slots while retaining the continuous all-bags-as-one layout.
+- Bank frame gains modest extra vertical room so the 164 native storage slots can remain visible at the larger size without splitting back into bag sections.
+- Ebonhold Void/Extended Storage remains pending its Lua packet parser/UI bridge; the native client transport has been identified as ExtBankOpen/ExtBankMove/ExtBankUnlock/ExtBankSetActive with data delivered to ExtBank_OnPacket.
+
+ZenUI 0.8.44 - Bank grid rewrite + deterministic Character camera
+
+0.8.44
+- Character Equipment now resets to a known default zoom and rotation every time the Character panel opens, avoiding Ebonhold PlayerModel hide/show camera desynchronization entirely.
+- Rebuilt the Bank item area as one continuous storage grid; unused capacity inside individual bank bags no longer creates large invisible gaps.
+- Bank grid mouse wheel now scrolls continuous rows when custom/large bank bags exceed the visible area.
+- Added all seven real bank-bag equipment slots so purchased slots can accept, swap and remove bag items through native inventory APIs.
+- Integrated native bank-bag slot purchasing with the Blizzard confirmation flow, live next-slot cost and purchased-slot status.
+- Ebonhold extended-storage transport was investigated but is not force-opened by Zen yet: ExtBankOpen activates Ebonhold's native-deposit suppression, so the Lua packet/UI bridge must be integrated before enabling it safely.
+
+ZenUI 0.8.43 - Character reopen zoom resync
+
+0.8.43
+- Fixed Character model zoom becoming stuck at the inward/outward clamp after closing and reopening the panel.
+- Character panel OnShow now re-synchronizes the visible PlayerModel scale with Zen's stored zoom state.
+- Camera scale is reasserted for several visible frames after reopen, SetUnit refreshes and mouse-wheel zoom changes for private-server PlayerModel compatibility.
+
+ZenUI 0.8.42 - Character zoom persistence + reputation hint
+
+0.8.42
+- Character model zoom state now survives Character panel close/reopen and unrelated unit-stat refreshes.
+- PlayerModel camera/model scale is reasserted for a few frames after native model refreshes to avoid private-server scale resets.
+- Equipment changes refresh the model without discarding the user's zoom.
+- Reputation page now shows a brighter, larger hint: right-click a faction to Track / Untrack reputation.
+
+ZenUI 0.8.41 - Character zoom, reputation tracking and mail spacing
+
+0.8.41
+- Character model now uses race-aware model scaling instead of forced camera distance.
+- Mouse wheel zoom works over the model and the full Equipment panel.
+- Right-click a Reputation row to track/untrack it using Wrath's native watched faction system.
+- Tracked factions are labelled directly in the Reputation list.
+- Send Mail payment fields have wider inputs and cleaner spacing.
+
+ZenUI 0.8.40 - Character framing and list/mail polish
+
+0.8.40
+- Reworked Character model framing to use the native model camera plus race-aware distance profiles, avoiding fixed camera/position cropping across different races.
+- Increased Character model viewport space and moved weapon/stat controls down to keep the full model clear.
+- Reputation and Skills progress bars now begin at the true left edge of each row.
+- Added stable Wrath item-ID fallbacks for standard currency-token icons, including zero-count Emblems.
+- Rebuilt Mail payment inputs with dedicated Gold/Silver/Copper labels and centered numeric fields so text no longer clips.
+
+ZenUI 0.8.39 - Character, LFD and Mail visual fixes
+
+0.8.39
+- Character paper-doll now uses Wrath's full-body camera so race/model proportions fit automatically; drag rotation and mouse-wheel zoom remain.
+- Moved the model-control hint away from the weapon/stat area and tightened weapon/stat vertical spacing.
+- Currency rows resolve icons through GetCurrencyListLink/item cache fallbacks for 3.3.5/private-server token APIs.
+- Dungeon Finder details/reward text and reward icons are larger and more readable.
+- Send Mail attachments now resolve their visible textures through item-cache fallbacks, fixing custom/private-server items that reported non-texture identifiers.
+
+ZenUI 0.8.38 - Mail transaction + attachment polish
+
+0.8.38 - Quest Tracker Bridge
+- Clicking a tracked quest in the Wrath Objectives tracker now opens that exact quest in the Zen Quest Log.
+- Suppresses Blizzard QuestLogDetailFrame while the Zen Quest Log replacement is enabled.
+- Preserves stock achievement clicks, tracking modifier clicks and the native QuestLogFrame lifecycle for companion-addon compatibility.
+- Incoming C.O.D. mail now shows the amount due and routes attachment clicks through Wrath's native C.O.D. payment confirmation/take-item flow.
+- Inbox detail now clearly separates enclosed money, C.O.D. due, and attached items.
+- Send Mail now has dedicated Attachments and Payment panels with visible attachment icons, counts, money/C.O.D. summary and postage summary.
+- Zen Mail keeps Blizzard's hidden Inbox/SendMail state synchronized for better mailbox-addon compatibility.
+- Right-clicking a bag item while Zen Send Mail is open attaches it to the next free outgoing mail slot; drag/drop and attachment removal remain supported.
+- C.O.D. cannot be selected without an attached item, matching Wrath's native mail rules.
+
+ZenUI 0.8.36 - Character presentation polish
+- Pulled the Character model camera back and slightly lowered the model viewport so tall characters/headgear fit without clipping.
+- Rebuilt Reputation/Skills/Currency list rows with more vertical breathing room and separated standing/detail text from progress bars.
+- Reduced visible list rows to 10 to preserve clean spacing inside the fixed Character panel.
+- Currency entries now display token icons and fall back through item IDs on private-server/custom currency APIs.
+
+ZenUI 0.8.35 - Merchant + Dungeon Finder polish
+- Merchant panel is narrower and denser, with larger item/price text and clearer ITEM/PRICE columns.
+- Mouse wheel changes Merchant Buy/Buyback pages while hovering the list or its rows.
+- Dungeon Finder details now show completion reward data: money, XP and reward items/tokens/crates.
+- Dungeon reward rows use native LFG reward tooltips when available.
+
+ZenUI 0.8.34 - Phase B Character + Mail polish
+- Zoomed the Character paper-doll camera out slightly so the full model fits more reliably while preserving drag rotation and mouse-wheel zoom.
+- Character stat rows now support hover tooltips with explanations and current values.
+- Reputation standings are brighter and explicitly labelled for easier scanning.
+- Replaced the technical Quest Log compatibility footer with normal user-facing mouse/L-key guidance.
+- Rebuilt Send Mail compose layout with a large true multiline message box, cleaner recipient/subject/money/C.O.D./attachment spacing, and ESC-to-close from all input fields.
+- Added Inbox Collect Gold, which steps through money-bearing inbox messages (including Auction House proceeds) and collects their money.
+- Native MailFrame remains logically open but invisible while Zen Mail is active so event/API-driven mailbox addons can continue to receive the normal mail lifecycle.
+
+ZenUI 0.8.33 - Quest native-toggle compatibility
+- L now uses Wrath's actual ToggleFrame(QuestLogFrame) state as the authoritative quest-log toggle.
+- The Blizzard QuestLogFrame remains logically shown/hidden for compatibility but is kept fully invisible and non-interactive while Zen Quest Log is enabled.
+- Removed Zen's global ToggleQuestLog override so companion quest addons can keep their own wrappers/hooks.
+- Zen Quest Log mirrors native QuestLogFrame OnShow/OnHide, so a repeated L press closes it reliably.
+- Zen micro-menu Quest Log action now follows the same native path as the L keybinding.
+- Disabling the Zen Quest Log restores the stock QuestLogFrame presentation cleanly.
+
+ZenUI 0.8.31 - Bag gold history
+- Added a hover tooltip to the Unified Bags gold display.
+- Tracks the last-known balance of each character played with ZenUI and shows per-character balances plus a total.
+- Gold history is account-wide SavedVariables data and updates on login and PLAYER_MONEY.
+- Characters appear after they have been logged into at least once with this build.
+
+ZenUI 0.8.29 - Phase B Character + Quest functionality
+- Rebuilt Character Equipment interaction: drag/click equipped slots now swap with cursor/bag items using native inventory APIs.
+- Character model can be dragged to rotate and mouse-wheel zoomed.
+- Added Base, Melee, Ranged, Spell and Defense stat categories with Wrath combat-rating/stat APIs.
+- Redesigned Reputation, Skills and Currency lists with clearer group headers, progress bars, values and collapsible groups.
+- Currency headers now expand/collapse through ExpandCurrencyList instead of being display-only.
+- Fixed Quest Log parsing for Wrath's suggestedGroup return value, which previously caused group quests to be mistaken for headers and made them unselectable.
+- Added clear selected-quest highlighting and kept Track/Share/Abandon bound to the actual selected quest.
+- Added an invisible native QuestLogFrame open pulse so quest-helper addons that hook the Blizzard quest-log open event can still react while Zen remains the visible quest log.
+- Retains all 0.8.28 Phase A/B, Ebonhold, mover, chat-history and single-leader-crown fixes.
+
+ZenUI 0.8.28 - Single-source group leader crowns
+- Fixed duplicate Party leader crowns seen on some private-server 3.3.5 cores.
+- Party leadership now resolves from GetPartyLeaderIndex first, guaranteeing a single crown.
+- UnitIsPartyLeader is retained only as a last-resort fallback when the leader-index API is unavailable.
+- Raid leaders remain sourced from GetRaidRosterInfo rank 2; assistants remain rank A only.
+
+ZenUI 0.8.27 - Group leader crown indicators
+- Added the native Wrath group-leader crown to Zen Party frames.
+- The Player frame now shows the same crown when the player is party/raid leader.
+- Raid leaders now use the crown instead of the old textual L marker; raid assistants retain the compact A marker.
+- Added PARTY_LEADER_CHANGED handling plus private-server-compatible leader detection fallbacks.
+- Party/Raid preview mode now demonstrates the leader crown as well.
+- Retains all 0.8.26 Ebonhold Clear IDs integration, replacement panels, movers and Phase B functionality.
+
+ZenUI 0.8.26 - Hidden live Ebonhold Clear IDs execution
+- Fixed Ebonhold Clear IDs on clients that only create/attach the native control while Social > Raid is genuinely shown.
+- Zen now opens the real stock Raid page at alpha 0 inside the user's Clear IDs click, finds the native Ebonhold control, and invokes it while that hidden page is still live.
+- The stock Friends/Raid replacement guards temporarily stand down only during this transparent execution pass, then immediately suppress the Blizzard UI again.
+- Ebonhold retains ownership of Soul Ash pricing, confirmation and server-side eligibility; Zen no longer attempts ResetInstances() for these raid IDs.
+- Removed the stale Button:IsEnabled gate because some private-client builds do not refresh that visual state after the stock frame is hidden.
+
+ZenUI 0.8.25 - Invisible Ebonhold Social/Raid bridge
+- Removed the temporary ShowUIPanel/Show bootstrap used to initialize Ebonhold Clear IDs.
+- Ebonhold Raid update/OnShow logic is now invoked while Blizzard Social/Raid frames remain hidden.
+- Removed the native-bridge OnShow bypass that could leave the stock Friends/Raid panel visible.
+- Added a direct RaidFrame OnShow guard that redirects any Ebonhold stock-panel leak back to Zen Raid.
+- Clear IDs still proxies Ebonhold's native button/action and keeps server-owned Soul Ash validation.
+
+ZenUI 0.8.24 - Ebonhold Social/Raid bridge visibility fix
+
+- Fixed a regression where initializing Project Ebonhold's hidden Clear IDs control could leave the stock Blizzard Friends List visible.
+- The Ebonhold bridge now force-hides FriendsFrame/RaidFrame after initialization and reasserts the hide for several UI frames to catch deferred FrameXML refreshes.
+- Zen's Raid panel is restored immediately after the hidden bridge runs and after Clear IDs is invoked.
+- Retains all 0.8.23 Phase A/B replacement panels, movers, chat history and schema 23 settings.
+
+ZenUI 0.8.23 - Project Ebonhold Clear IDs integration
+- Replaced the misleading stock Reset Instances action in the Zen Raid panel with Clear IDs.
+- Proxies Project Ebonhold's native hidden Clear IDs button so Soul Ash pricing and confirmation remain server/client owned.
+- Detects Clear IDs recursively in the stock Social/Raid hierarchy with a safe global-button fallback.
+- Can invisibly bootstrap the stock Raid tab if the Ebonhold control is created only when that tab initializes.
+- Blocks Clear IDs while grouped and reports the Ebonhold out-of-group requirement.
+- Never falls back to ResetInstances() for Ebonhold raid IDs.
+
+ZenUI 0.8.22 - Raid lockout actions + direct reset
+- Reset Instances now calls ResetInstances() directly from the confirmation click instead of through the SafeCall/pcall wrapper.
+- Added selectable saved raid rows with native Wrath Extend Raid Lock / Unextend Raid Lock / Reactivate Raid Lock actions.
+- Raid Info now clearly separates manually resettable instances from persistent saved raid lockouts.
+- Retained Raid Info lockout listing, timers, Phase A/B replacement panels, chat history, movers, and schema 23.
+ZenUI 0.8.20
+- Raid Info now explicitly lists saved raid lockouts with difficulty, lock state, boss progress when available, and reset time.
+- Raid roster view now shows a live locked-raid summary and lockout count on the Raid Info button.
+- Raid lockout data polls briefly after RequestRaidInfo() for private-server clients that do not reliably fire UPDATE_INSTANCE_INFO.
+- Reset Instances now prefers Blizzard's native CONFIRM_RESET_INSTANCES path and is disabled when CanShowResetInstances reports nothing can be reset.
+- Clarified that saved raid lockouts are timer-based and cannot be manually cleared by ResetInstances.
+
+ZenUI 0.8.19 - Raid reset restored
+
+- Restored the native Wrath Reset Instances action to the Zen Social -> Raid view.
+- Added a Zen-native confirmation prompt before calling ResetInstances().
+- Reset Instances remains available in both Raid Roster and Raid Info modes and refreshes saved raid info after use.
+- Database schema remains 23; no profile reset is required.
+
+ZenUI 0.8.18 - Social Raid view restored
+
+- Restored Wrath's missing fifth Social tab as a true Zen-owned Raid view.
+- Friends / Ignore / Guild / Raid now navigate as one Social system and share the Social / Guild / Raid mover.
+- Added a scrollable current-raid roster with group, class, zone, leader/assistant role and clear online/dead/offline state.
+- Added right-click whisper and a selected-member Whisper action.
+- Added Ready Check for raid leaders/assistants and Convert to Raid for eligible party leaders.
+- Added a Zen-native Raid Info view using RequestRaidInfo/GetSavedInstanceInfo for saved lockouts and reset timers.
+- ToggleFriendsFrame(5) and the stock Raid social tab now route into the Zen Raid panel when Social replacement is enabled.
+- Raid shares the Social local scale; Guild keeps its existing independent Guild scale.
+- Database schema remains 23; no profile reset is required.
+
+ZenUI 0.8.17 - Phase B replacement panels
+
+- Added true Zen-owned Character, Quest Log, Mail, Merchant, Bank and Trade windows.
+- Character includes Equipment, Reputation, Skills and Currency views.
+- Quest Log supports selection, header expand/collapse, tracking, sharing and abandoning.
+- Mail provides Inbox reading/attachments/reply plus Send Mail with attachments, money and C.O.D.
+- Merchant provides Buy/Buyback paging plus native purchase, sell-via-bags and Repair All backend actions.
+- Bank displays the bank container and purchased bank bags in one Zen grid, with native item interactions and bank-slot purchase access.
+- Trade mirrors both item columns and native accept/cancel/cursor-item behavior.
+- Added independent local scale and mover anchors for all six Phase B panels.
+- Database schema 23 adds Phase B panel toggles/scales without resetting existing profiles.
+
+ZenUI 0.8.16 - Reliable precision mover input
+
+- Precision/lock controls now keep their mouse hit rects enabled permanently; inactive state is visual-only.
+- Explicitly registers precision buttons for LeftButtonUp and raises them above the Mover Controls frame.
+- Active precision controls now render with bright text so their live state is unambiguous.
+- Existing click handlers remain safe no-ops until a mover is selected.
+- Database schema remains 22; no profile reset is required.
+
+ZenUI 0.8.15 - Mover control activation fix
+
+- Fixed selected mover controls remaining visually/clickably greyed out after choosing an anchor on some Wrath 3.3.5/private-server clients.
+- Precision nudge, Reset and Lock Position controls now use mouse gating instead of Blizzard Button:Disable(), avoiding sticky disabled states.
+- Active controls explicitly restore normal button state, full alpha and normal Zen text styling as soon as a mover is selected.
+- Controls remain visibly muted and non-clickable only when no mover panel is selected.
+- Database schema remains 22; no profile reset is required.
+
+ZenUI 0.8.14 - Lock points + precision movers
+
+- Expanded the Mover Controls miniUI so precision controls are always visible.
+- Precision and lock controls stay greyed out until a mover panel is selected.
+- Added per-mover Lock Position choices: Top Left, Top Right, Bottom Left, Bottom Right.
+- Lock Position pins the chosen UI corner to the matching mover corner, keeping different-sized shared views aligned.
+- Social and Guild both obey the same shared Social / Guild lock point.
+- Added visible 1px -X/+X/+Y/-Y nudges and Reset directly to the mover miniUI.
+- Existing mover databases gain a Top Left lock point lazily; no schema reset is required.
+
+ZenUI 0.8.13 - Stable anchors + precision movers
+- Replacement panels now pin their TOPLEFT corner to the mover TOPLEFT corner.
+- Social and Guild therefore keep the exact same top-left position when switching views despite their different sizes.
+- Spellbook and Dungeon Finder use the same stable top-left mover contract.
+- Clicking a mover anchor now selects it in Mover Controls.
+- Added 1px -X/+X/+Y/-Y precision nudge buttons plus Reset for the selected anchor.
+- Precision nudges intentionally bypass grid snap; normal dragging still uses the configured snap grid.
+- Selected anchors receive a slightly stronger mover highlight while editing.
+- Database schema remains 22; no profile reset is required.
+
+ZenUI 0.8.12 - Chat history buffer
+- Replaced the unreliable single-entry/native arrow history behaviour with a Zen-owned 10-message session buffer.
+- Plain Up/Down cycles backward/forward through the last ten sent chat entries.
+- Preserves the current unsent draft when history browsing begins and restores it when moving forward past the newest entry.
+- Consecutive duplicate messages use a single history slot.
+- Restores the original Blizzard edit-box scripts and Alt+Arrow mode if ZenChat is disabled.
+- Database schema remains 22; no profile reset is required.
+
+0.8.11 - Mover cleanup
+- Consolidated Friends / Ignore / Guild into one Social / Guild mover anchor.
+- Social and Guild now always share the same screen position while retaining their individual local scales.
+- Removed the redundant Guild mover from /zenui move and shortened Phase A mover labels.
+- Social / Guild mover footprint now expands to cover whichever of the two views is larger at the configured scales.
+- Updated mover/help wording to reflect the three Phase A anchors.
+- Mover overlays are lighter and use compact top-left labels; coordinates appear only on hover/drag to reduce screen clutter.
+
+ZenUI 0.8.10
+- Added plain Up/Down message-history navigation to ZenChat edit boxes.
+- Uses Wrath 3.3.5's native 32-line chat history, so sent messages, channel commands and whispers are recalled using the same history Blizzard already records.
+- Restores Blizzard's original Alt+Arrow behavior if ZenChat is disabled.
+- Database schema remains 22; no profile reset is required.
+
+ZenUI 0.8.9
+- Fixed Guild Show offline by keeping Wrath's underlying guild roster source expanded while the Zen panel is open, then applying Zen's local online/offline filter.
+- Restores the player's stock guild offline-filter state when the Zen Guild panel closes.
+- Added right-click whisper to online Friends rows, matching the existing Guild interaction.
+- Increased Friends and Guild list/header/status text sizes for easier reading without changing the compact layouts.
+- Friends summary now advertises the right-click whisper shortcut.
+- Database schema remains 22; no profile reset is required.
+
+ZenUI 0.8.8
+- Improved Friends presence readability: online rows are brighter with a green status marker/text; offline rows are deliberately muted.
+- Added the same presence treatment to Guild, including a dedicated STATUS column and online/offline indicator.
+- Offline Guild metadata is dimmed as a full row while online class-coloured names stay prominent.
+- Database schema remains 22; no profile reset is required.
+
+ZenUI 0.8.7
+- Fixed Show lower ranks so raw lower-rank spell slots are no longer remapped back to the highest known rank.
+- Calls Wrath's spell cache refresh after changing the lower-rank setting.
+- Reserved a dedicated Spellbook search header so the search box cannot overlap spell rows.
+- Added a larger Guild footer gutter so roster content cannot collide with Invite/Whisper/member action controls.
+- Reduced the Social panel footprint and rebuilt Friends/Ignore rows as compact name/details + status columns with a divider.
+- Database schema remains 22.
+
+ZenUI 0.8.6
+- Kept Phase A edit/search boxes above panel content so they remain clickable and visible.
+- Restored a Spellbook Show lower ranks toggle using Wrath's ShowAllSpellRanks CVar.
+- Added mouse-wheel page navigation to the Zen Spellbook and corrected last-page offset clamping.
+- Added Friends / Ignore / Guild navigation to the Guild view so Social navigation never dead-ends.
+- Social <-> Guild tab switches now preserve the current on-screen anchor for a continuous panel feel.
+- Database schema remains 22; no profile reset is required.
+
+ZenUI 0.8.5
+- Fixed Phase A replacement-panel backend wiring against Wrath 3.3.5 FrameXML.
+- Spellbook now uses Wrath spell-line/highest-rank slot mapping and native CastSpell/PickupSpell actions.
+- Dungeon Finder now syncs Blizzard's hidden LFD state, uses the native LFDQueueFrame_Join path, fills the specific-dungeon list from Wrath's LFG tables, and uses the 3.3.5 dungeon-info return layout.
+- Dungeon Finder now explicitly requests player/party LFD lock state when the Zen panel opens, with a short compatibility refresh window for private-server cores that return the list asynchronously.
+- Added fallbacks for custom/private-server spell slot mapping and LFD choice-order/cache population.
+- Social action buttons were re-laid out so Add/Invite/Whisper/Remove no longer overlap.
+- Guild roster now filters offline members locally instead of passing an invalid argument to GetNumGuildMembers().
+- Database schema remains 22; no profile reset is required.
+
+ZenUI 0.8.4
+- Phase A switches from Blizzard-frame reskinning to true Zen-owned replacement windows.
+- Added a standalone Zen Spellbook with spell-line navigation, search, paging, tooltips, secure spell clicks and drag-to-action-bar support.
+- Added a standalone Social panel with Friends and Ignore lists, add/remove, whisper and invite actions.
+- Added a standalone Guild roster with online/offline filtering, member selection, whisper, invite, promote, demote and remove actions.
+- Added a standalone Dungeon Finder with Random/Specific modes, role selection, native LFG queue/leave actions and native proposal/role-check backend integration.
+- Added independent local scales and mover/grid-snap anchors for all four Phase A panels.
+- Major Blizzard panels not yet replaced are deliberately left stock instead of being partially skinned.
+- Database schema updated to 22. Existing profiles migrate in place.
+
+ZenUI 0.8.3
+- Replaced the broad Blizzard artwork scanner with explicit Wrath 3.3.5 panel definitions.
+- Prevents hybrid half-Blizzard / half-Zen windows: only known structural chrome is stripped.
+- Rebuilt Spellbook, Friends/Social, Character, Quest Log, Dungeon Finder, Raid Finder and PvP outer shells around native functionality.
+- Added Dungeon Finder and Raid Finder to Blizzard panel scaling and mover/grid-snap support.
+- Reasserts only captured chrome when Blizzard refresh functions redraw tabs/pages.
+- Keeps load-on-demand extra panels conservative so functional inner content is preserved.
+- Database schema remains 21; no profile reset is required.
+
+ZenUI 0.8.2
+- Reworked Blizzard frame skin registration so one unusual FrameXML object cannot disable the whole skin module.
+- Added explicit Wrath 3.3.5 root-chrome removal alongside the recursive texture pass.
+- Blizzard close buttons now use Zen chrome and typography.
+- Added a lightweight visible-panel refresh to keep Blizzard redraws from restoring native artwork.
+- Currently open Blizzard panels now participate in /zenui move and grid snapping.
+- Added Move Open Panels to /zenui > Blizzard.
+- Preserved 0.8.1 local Blizzard-frame scaling and all previous config/raid/preview fixes.
+
+ZenUI 0.8.1
+
+- Fixed Blizzard frame styling not visibly replacing Wrath 3.3.5 panel artwork.
+- Added recursive Wrath panel-chrome detection for nested parchment/frame textures.
+- Added native Backdrop removal/restoration for Game Menu and confirmation-style frames.
+- Re-scan Blizzard frames on ADDON_LOADED and PLAYER_ENTERING_WORLD for private-server/load-order differences.
+- Added independent local scales for Core, Service, Extra, Game Menu and Dialog Blizzard frame groups.
+- Blizzard local scales multiply the existing ZenUI global scale.
+- Database schema updated to 21.
+
+ZenUI 0.8.0
+- Added the BlizzardFrames styling module for common Wrath panels.
+- Added Zen styling for Character, Spellbook, Quest Log, Social, vendor/service panels, Game Menu and Static Popups.
+- Added automatic skin pickup for load-on-demand Talents, Glyphs, Achievements, Auction House, Calendar, Inspect and Guild Bank panels.
+- Added a Blizzard settings page with frame-group, button, font and accent controls.
+- Blizzard frame logic, tabs, item slots, scrolling and secure actions remain native.
+- Database schema updated to 20.
+
+ZenUI 0.5.4 - Config layout cleanup
+=========================================
+
+- Reworked /zenui pages to use a clean scroll viewport with an accent scrollbar only when content exceeds the available height.
+- Added mouse-wheel scrolling for overflowing settings pages.
+- Constrained checkbox labels so text cannot bleed into neighbouring controls.
+- Cleaned spacing on Action Bars special bars and Bar Behavior controls.
+- Split the long Party visibility explanation into a short label plus muted helper text.
+- Moved the Appearance global-scale note away from the reset-button row.
+- Added extra breathing room to the Bags page helper text.
+- Fixed Raid Rows orientation using the five-member column height as its subgroup stride, which caused groups to spread vertically across the screen.
+- Raid Rows now stack one compact horizontal five-player row per subgroup while Columns behavior is unchanged.
+- No database migration; schema remains 19.
+
+ZenUI 0.5.4
+- Added small preview-side Stop Preview buttons for Party and Raid test frames.
+================
+
+- Fixed the Zen micro menu popup interaction layer so menu entries and Close are clickable above secure/action-button layers.
+- Removed the standalone Scaling navigation page.
+- Moved local scale controls onto their relevant pages: Unit Frames, Party & Raid, Action Bars, Menu & Bags, Minimap, Chat and Bags.
+- Appearance keeps the global UI Scale and now provides Reset Section Scales.
+- Added temporary Party and Raid preview modes so group frames can be configured while solo.
+- Party preview shows four representative members; Raid preview renders the configured group count/orientation with representative health/power/indicators.
+- Group previews automatically retire when real party/raid data becomes available.
+- No database migration; schema remains 19.
+
+ZenUI 0.5.3a
+=================
+
+- Unified Bags now display current character money (gold / silver / copper).
+- Money display refreshes immediately on PLAYER_MONEY.
+- No database migration; schema remains 19.
+
+ZenUI 0.5.3
+================
+
+- Added a dedicated Scaling options page.
+- Global UI Scale is now multiplied by local scales for UnitFrames, Party, Raid, ActionBars, Minimap, Chat, Bags and the Zen Menu/launcher.
+- Each component scale ranges from 50% to 150% and persists per profile.
+- Added Reset Component Scales without touching the global scale or mover positions.
+- Tooltip scale now also respects the global UI scale while retaining its existing local Tooltip Scale slider.
+- Mover footprints update to match scaled components.
+- Database schema 19.
+
+ZenUI 0.5.2
+================
+
+- Added direct clickable container toggles inside the unified bag window.
+- Backpack, Bag 1-4 and Keyring can be shown/hidden without opening /zenui.
+- Bank and Bank Bags toggles appear automatically while the bank is open.
+- Active containers use the Zen accent border; hidden containers remain dim but clickable.
+- Bag free-slot count and grid resize immediately when a container is toggled.
+- No database migration; schema remains 18.
+
+ZenUI 0.5.1a
+
+- Added automatic out-of-range fading for Party and Raid frame visuals.
+- Added a 5 Hz group visual refresh so range/health state recovers even when private-server UNIT events are delayed.
+- Party/Raid health and power bars now preserve their last valid ratio during transient 0/0 unit-data gaps instead of blacking out.
+- Offline/dead/ghost units still resolve to an empty/dimmed state normally.
+- No database migration; schema remains 18.
+
+ZenUI 0.5.1
+================
+
+- Bag window moved below Blizzard dialog strata so stack splitting, confirmations and modified-click popups render in front.
+- Added individual container inclusion toggles for Backpack, Bag 1-4 and Keyring.
+- Added optional Bank and Bank Bag inclusion while the bank is open.
+- Added keyring routing through the unified bag system when enabled.
+- Chat native background/border chrome is now hidden rather than merely alpha-zeroed, preventing Blizzard fade logic from recreating a second box.
+- Chat shell remains clamped to the original Wrath chat resize limits.
+- Database schema 18.

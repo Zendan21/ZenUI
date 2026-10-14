@@ -1,0 +1,16 @@
+ZENUI RENAME NOTES
+==================
+
+ZenUI 0.9.137 is the renamed continuation of RavioliUI 0.9.136.
+
+IMPORTANT INSTALL STEP
+----------------------
+Remove the old Interface\AddOns\RavioliUI folder before installing ZenUI.
+Do not leave both addon folders enabled at the same time.
+
+Your existing RavioliUIDB SavedVariables are loaded once and automatically
+migrated into ZenUIDB, including profiles, mover positions and branded scale
+keys. Old /rui macros continue to work as silent compatibility aliases, but the
+new commands are /zenui and /zen.
+
+New profile exports use ZUI1:. Existing RUI1: profile strings remain importable.
